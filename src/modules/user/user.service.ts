@@ -48,6 +48,15 @@ export class UserService {
     return plainToClass(UserEntity, user);
   }
 
+  async findOneByLogin(login: string): Promise<User> {
+    // TODO: use findUnique
+    const user = await this.prisma.user.findFirst({ where: { login } });
+
+    if (!user) throw new NotFoundException(Message.NOT_FOUND);
+
+    return user;
+  }
+
   async updatePassword(
     id: string,
     { newPassword, oldPassword }: UpdatePasswordDto,

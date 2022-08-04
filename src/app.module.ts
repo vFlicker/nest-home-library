@@ -13,7 +13,7 @@ import {
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot({ isGlobal: true }),
     UserModule,
     ArtistModule,
     AlbumModule,
