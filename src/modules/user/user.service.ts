@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
+import { hash } from 'bcrypt';
 import { User } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -16,12 +17,16 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    const { login, password } = createUserDto;
+
+    const saltRounds = 10;
+    const passwordHash = await hash(password, saltRounds);
     const createdAt = new Date().toISOString();
 
     const newUser = await this.prisma.user.create({
       data: {
-        login: createUserDto.login,
-        password: createUserDto.password,
+        login,
+        password: passwordHash,
         createdAt,
         updatedAt: createdAt,
       },

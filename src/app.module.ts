@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import {
   AlbumModule,
   ArtistModule,
+  AuthModule,
   FavoriteModule,
   TrackModule,
   UserModule,
@@ -19,6 +20,7 @@ import {
     FavoriteModule,
     TrackModule,
     PrismaModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
