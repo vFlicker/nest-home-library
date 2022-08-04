@@ -15,7 +15,7 @@ import {
 
 import { UserService } from './user.service';
 import { CreateUserDto, UpdatePasswordDto } from './dto';
-import { User } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -23,27 +23,27 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<User> {
+  create(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
     return this.userService.create(createUserDto);
   }
 
   @Get()
-  findAll(): Promise<User[]> {
+  findAll(): Promise<UserEntity[]> {
     return this.userService.findAll();
   }
 
   @Get(':id')
   findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<User> {
-    return this.userService.findOne(id);
+  ): Promise<UserEntity> {
+    return this.userService.findOneById(id);
   }
 
   @Put(':id')
   updatePassword(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
-  ): Promise<User> {
+  ): Promise<UserEntity> {
     return this.userService.updatePassword(id, updatePasswordDto);
   }
 

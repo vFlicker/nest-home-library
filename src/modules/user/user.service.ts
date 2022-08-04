@@ -4,17 +4,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
+import { User } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { Message } from './constants/message.constants';
 import { CreateUserDto, UpdatePasswordDto } from './dto';
-import { User } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const createdAt = new Date().toISOString();
 
     const newUser = await this.prisma.user.create({
@@ -26,26 +27,26 @@ export class UserService {
       },
     });
 
-    return plainToClass(User, newUser);
+    return plainToClass(UserEntity, newUser);
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<UserEntity[]> {
     const users = await this.prisma.user.findMany();
-    return users.map((user) => plainToClass(User, user));
+    return users.map((user) => plainToClass(UserEntity, user));
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOneById(id: string): Promise<UserEntity> {
     const user = await this.prisma.user.findUnique({ where: { id } });
 
     if (!user) throw new NotFoundException(Message.NOT_FOUND);
 
-    return plainToClass(User, user);
+    return plainToClass(UserEntity, user);
   }
 
   async updatePassword(
     id: string,
     { newPassword, oldPassword }: UpdatePasswordDto,
-  ): Promise<User> {
+  ): Promise<UserEntity> {
     const user = await this.prisma.user.findUnique({ where: { id } });
 
     if (!user) throw new NotFoundException(Message.NOT_FOUND);
@@ -63,7 +64,7 @@ export class UserService {
       },
     });
 
-    return plainToClass(User, updatedUser);
+    return plainToClass(UserEntity, updatedUser);
   }
 
   async remove(id: string): Promise<void> {
