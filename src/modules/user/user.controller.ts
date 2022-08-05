@@ -11,13 +11,16 @@ import {
   HttpStatus,
   UseInterceptors,
   ClassSerializerInterceptor,
+  UseGuards,
 } from '@nestjs/common';
 
 import { UserService } from './user.service';
 import { CreateUserDto, UpdatePasswordDto } from './dto';
 import { UserEntity } from './entities/user.entity';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Controller('user')
+@UseGuards(AuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}

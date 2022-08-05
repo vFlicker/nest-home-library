@@ -10,5 +10,6 @@ import { TokenRepository } from './repositories/token.repository';
   imports: [JwtModule.register({})],
   controllers: [AuthController],
   providers: [AuthService, UserService, TokenRepository],
+  exports: [AuthService],
 })
 export class AuthModule {}

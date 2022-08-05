@@ -39,10 +39,7 @@ export class AuthService {
   }
 
   async refresh(refreshDto: RefreshDto): Promise<TokenPair> {
-    const user = this.verifyToken<TokenPayload>(
-      refreshDto.refreshToken,
-      this.config.get('JWT_SECRET_REFRESH_KEY'),
-    );
+    const user = this.verifyRefreshToken(refreshDto.refreshToken);
 
     await this.userService.findById(user.id);
 
@@ -60,9 +57,21 @@ export class AuthService {
     return tokenPair;
   }
 
-  private verifyToken<T extends object>(token: string, secret: string): T {
+  verifyAccessToken(token: string): TokenPayload {
     try {
-      return this.jwt.verify(token, { secret });
+      return this.jwt.verify(token, {
+        secret: this.config.get('JWT_SECRET_KEY'),
+      });
+    } catch {
+      throw new ForbiddenException();
+    }
+  }
+
+  verifyRefreshToken(token: string): TokenPayload {
+    try {
+      return this.jwt.verify(token, {
+        secret: this.config.get('JWT_SECRET_REFRESH_KEY'),
+      });
     } catch {
       throw new ForbiddenException();
     }

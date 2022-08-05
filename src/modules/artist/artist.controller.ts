@@ -9,13 +9,16 @@ import {
   Put,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto, UpdateArtistDto } from './dto';
 import { ArtistEntity } from './entities/artist.entity';
 
 @Controller('artist')
+@UseGuards(AuthGuard)
 export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
 

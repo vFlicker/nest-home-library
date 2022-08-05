@@ -7,13 +7,16 @@ import {
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { Album, Artist, Favorite, Track } from '@prisma/client';
-import { FavoriteEntity } from './entities/favorite.entity';
+import { Album, Artist, Track } from '@prisma/client';
 
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { FavoriteEntity } from './entities/favorite.entity';
 import { FavoriteService } from './favorite.service';
 
 @Controller('favs')
+@UseGuards(AuthGuard)
 export class FavoriteController {
   constructor(private readonly favoriteService: FavoriteService) {}
 
