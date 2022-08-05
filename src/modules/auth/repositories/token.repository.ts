@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Token } from '@prisma/client';
 
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -12,5 +13,13 @@ export class TokenRepository {
       update: { refreshToken },
       create: { userId, refreshToken },
     });
+  }
+
+  async find(userId: string): Promise<Token> {
+    const response = await this.prisma.token.findFirst({
+      where: { userId },
+    });
+
+    return response;
   }
 }

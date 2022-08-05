@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { hash, compare } from 'bcrypt';
 import { User } from '@prisma/client';
+import * as argon from 'argon2';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { Message } from './constants/message.constants';
@@ -20,7 +20,7 @@ export class UserService {
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const { login, password } = createUserDto;
 
-    const passwordHash = await hash(password, 10);
+    const passwordHash = await argon.hash(password);
     const createdAt = new Date().toISOString();
 
     const newUser = await this.prisma.user.create({
@@ -64,7 +64,7 @@ export class UserService {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException(Message.NOT_FOUND);
 
-    const passwordMatches = await compare(oldPassword, user.password);
+    const passwordMatches = await argon.verify(user.password, oldPassword);
     if (!passwordMatches) throw new ForbiddenException('Forbidden');
 
     const updatedUser = await this.prisma.user.update({

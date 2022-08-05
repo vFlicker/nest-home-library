@@ -1,12 +1,12 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { hash, compare } from 'bcrypt';
+import * as argon from 'argon2';
 
 import { Message } from '../user/constants/message.constants';
 import { UserEntity } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
-import { LoginDto } from './dto';
+import { LoginDto, RefreshDto } from './dto';
 import { SignupDto } from './dto/signup.dto';
 import { TokenPair } from './interfaces/token-pair.interface';
 import { TokenRepository } from './repositories/token.repository';
@@ -28,8 +28,32 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<TokenPair> {
     const user = await this.userService.findByLogin(loginDto.login);
 
-    const passwordMatches = await compare(loginDto.password, user.password);
+    const passwordMatches = await argon.verify(
+      user.password,
+      loginDto.password,
+    );
     if (!passwordMatches) throw new ForbiddenException(Message.FORBIDDEN);
+
+    const tokenPair = await this.issueTokenPair(user.id, user.login);
+    return tokenPair;
+  }
+
+  async refresh(refreshDto: RefreshDto): Promise<TokenPair> {
+    const user = this.jwt.verify(refreshDto.refreshToken, {
+      secret: this.config.get('JWT_SECRET_REFRESH_KEY'),
+    }) as { id: string; login: string };
+
+    await this.userService.findById(user.id);
+
+    const dbToken = await this.tokenRepository.find(user.id);
+
+    const refreshTokenMatches = await argon.verify(
+      dbToken.refreshToken,
+      refreshDto.refreshToken,
+    );
+    if (!refreshTokenMatches) {
+      throw new ForbiddenException(Message.FORBIDDEN);
+    }
 
     const tokenPair = await this.issueTokenPair(user.id, user.login);
     return tokenPair;
@@ -55,7 +79,7 @@ export class AuthService {
       }),
     ]);
 
-    const hashedRefreshToken = await hash(refreshToken, 10);
+    const hashedRefreshToken = await argon.hash(refreshToken);
     await this.tokenRepository.save(userId, hashedRefreshToken);
 
     return { accessToken, refreshToken };
