@@ -8,7 +8,7 @@ import { UserEntity } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { LoginDto, RefreshDto } from './dto';
 import { SignupDto } from './dto/signup.dto';
-import { TokenPair } from './interfaces/token-pair.interface';
+import { TokenPair, TokenPayload } from './interfaces';
 import { TokenRepository } from './repositories/token.repository';
 
 @Injectable()
@@ -39,9 +39,10 @@ export class AuthService {
   }
 
   async refresh(refreshDto: RefreshDto): Promise<TokenPair> {
-    const user = this.jwt.verify(refreshDto.refreshToken, {
-      secret: this.config.get('JWT_SECRET_REFRESH_KEY'),
-    }) as { id: string; login: string };
+    const user = this.verifyToken<TokenPayload>(
+      refreshDto.refreshToken,
+      this.config.get('JWT_SECRET_REFRESH_KEY'),
+    );
 
     await this.userService.findById(user.id);
 
@@ -57,6 +58,14 @@ export class AuthService {
 
     const tokenPair = await this.issueTokenPair(user.id, user.login);
     return tokenPair;
+  }
+
+  private verifyToken<T extends object>(token: string, secret: string): T {
+    try {
+      return this.jwt.verify(token, { secret });
+    } catch {
+      throw new ForbiddenException();
+    }
   }
 
   private async issueTokenPair(
