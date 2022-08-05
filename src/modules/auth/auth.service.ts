@@ -1,8 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { compareSync } from 'bcrypt';
-import { v4 as uuid } from 'uuid';
+import { hash, compare } from 'bcrypt';
 
 import { Message } from '../user/constants/message.constants';
 import { UserEntity } from '../user/entities/user.entity';
@@ -10,13 +9,15 @@ import { UserService } from '../user/user.service';
 import { LoginDto } from './dto';
 import { SignupDto } from './dto/signup.dto';
 import { TokenPair } from './interfaces/token-pair.interface';
+import { TokenRepository } from './repositories/token.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
-    private jwt: JwtService,
-    private config: ConfigService,
+    private readonly jwt: JwtService,
+    private readonly config: ConfigService,
+    private readonly tokenRepository: TokenRepository,
+    private readonly userService: UserService,
   ) {}
 
   async signup(signupDto: SignupDto): Promise<UserEntity> {
@@ -25,31 +26,38 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto): Promise<TokenPair> {
-    const user = await this.userService.findOneByLogin(loginDto.login);
+    const user = await this.userService.findByLogin(loginDto.login);
 
-    if (!compareSync(loginDto.password, user.password)) {
-      throw new NotFoundException(Message.NOT_FOUND);
-    }
+    const passwordMatches = await compare(loginDto.password, user.password);
+    if (!passwordMatches) throw new ForbiddenException(Message.FORBIDDEN);
 
-    const tokenPair = await this.issueTokenPair(user.id);
+    const tokenPair = await this.issueTokenPair(user.id, user.login);
     return tokenPair;
   }
 
-  private async issueTokenPair(userId: string): Promise<TokenPair> {
-    const secret = this.config.get('JWT_SECRET_KEY');
-    console.log();
+  private async issueTokenPair(
+    userId: string,
+    login: string,
+  ): Promise<TokenPair> {
+    const payload = {
+      id: userId,
+      login,
+    };
 
-    const token = await this.jwt.signAsync(
-      { id: userId },
-      {
-        expiresIn: '15m',
-        secret,
-      },
-    );
-    const refreshToken = uuid();
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwt.signAsync(payload, {
+        expiresIn: this.config.get('TOKEN_EXPIRE_TIME'),
+        secret: this.config.get('JWT_SECRET_KEY'),
+      }),
+      this.jwt.signAsync(payload, {
+        expiresIn: this.config.get('TOKEN_REFRESH_EXPIRE_TIME'),
+        secret: this.config.get('JWT_SECRET_REFRESH_KEY'),
+      }),
+    ]);
 
-    /* TODO: store refresh token in database */
+    const hashedRefreshToken = await hash(refreshToken, 10);
+    await this.tokenRepository.save(userId, hashedRefreshToken);
 
-    return { token, refreshToken };
+    return { accessToken, refreshToken };
   }
 }

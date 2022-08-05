@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { hash } from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 import { User } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -16,11 +16,11 @@ import { UserEntity } from './entities/user.entity';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
+  // TODO: remove and use auth.service.signup
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const { login, password } = createUserDto;
 
-    const saltRounds = 10;
-    const passwordHash = await hash(password, saltRounds);
+    const passwordHash = await hash(password, 10);
     const createdAt = new Date().toISOString();
 
     const newUser = await this.prisma.user.create({
@@ -40,7 +40,7 @@ export class UserService {
     return users.map((user) => plainToClass(UserEntity, user));
   }
 
-  async findOneById(id: string): Promise<UserEntity> {
+  async findById(id: string): Promise<UserEntity> {
     const user = await this.prisma.user.findUnique({ where: { id } });
 
     if (!user) throw new NotFoundException(Message.NOT_FOUND);
@@ -48,7 +48,7 @@ export class UserService {
     return plainToClass(UserEntity, user);
   }
 
-  async findOneByLogin(login: string): Promise<User> {
+  async findByLogin(login: string): Promise<User> {
     // TODO: use findUnique
     const user = await this.prisma.user.findFirst({ where: { login } });
 
@@ -62,12 +62,10 @@ export class UserService {
     { newPassword, oldPassword }: UpdatePasswordDto,
   ): Promise<UserEntity> {
     const user = await this.prisma.user.findUnique({ where: { id } });
-
     if (!user) throw new NotFoundException(Message.NOT_FOUND);
 
-    if (user.password !== oldPassword) {
-      throw new ForbiddenException(Message.WRONG_PASSWORD);
-    }
+    const passwordMatches = await compare(oldPassword, user.password);
+    if (!passwordMatches) throw new ForbiddenException('Forbidden');
 
     const updatedUser = await this.prisma.user.update({
       where: { id },

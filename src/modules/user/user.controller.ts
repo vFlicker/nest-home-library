@@ -33,10 +33,10 @@ export class UserController {
   }
 
   @Get(':id')
-  findOne(
+  findById(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<UserEntity> {
-    return this.userService.findOneById(id);
+    return this.userService.findById(id);
   }
 
   @Put(':id')
