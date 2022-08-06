@@ -6,14 +6,9 @@ CREATE TABLE "User" (
     "version" INTEGER NOT NULL DEFAULT 1,
     "createdAt" TIMESTAMP(3) NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "refreshToken" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Token" (
-    "refreshToken" TEXT NOT NULL,
-    "userId" UUID NOT NULL
 );
 
 -- CreateTable
@@ -55,15 +50,6 @@ CREATE TABLE "Track" (
 
     CONSTRAINT "Track_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "Token_refreshToken_key" ON "Token"("refreshToken");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Token_userId_key" ON "Token"("userId");
-
--- AddForeignKey
-ALTER TABLE "Token" ADD CONSTRAINT "Token_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Album" ADD CONSTRAINT "Album_artistId_fkey" FOREIGN KEY ("artistId") REFERENCES "Artist"("id") ON DELETE SET NULL ON UPDATE CASCADE;

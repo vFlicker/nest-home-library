@@ -9,14 +9,14 @@ import { UserService } from '../user/user.service';
 import { LoginDto, RefreshDto } from './dto';
 import { SignupDto } from './dto/signup.dto';
 import { TokenPair, TokenPayload } from './interfaces';
-import { TokenRepository } from './repositories/token.repository';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
-    private readonly tokenRepository: TokenRepository,
+    private readonly prisma: PrismaService,
     private readonly userService: UserService,
   ) {}
 
@@ -39,14 +39,12 @@ export class AuthService {
   }
 
   async refresh(refreshDto: RefreshDto): Promise<TokenPair> {
-    const user = this.verifyRefreshToken(refreshDto.refreshToken);
+    const tokenPayload = this.verifyRefreshToken(refreshDto.refreshToken);
 
-    await this.userService.findById(user.id);
-
-    const dbToken = await this.tokenRepository.find(user.id);
+    const user = await this.userService.findByLogin(tokenPayload.login);
 
     const refreshTokenMatches = await argon.verify(
-      dbToken.refreshToken,
+      user.refreshToken,
       refreshDto.refreshToken,
     );
     if (!refreshTokenMatches) {
@@ -57,6 +55,7 @@ export class AuthService {
     return tokenPair;
   }
 
+  // TODO: user verifyAsync
   verifyAccessToken(token: string): TokenPayload {
     try {
       return this.jwt.verify(token, {
@@ -67,6 +66,7 @@ export class AuthService {
     }
   }
 
+  // TODO: user verifyAsync
   verifyRefreshToken(token: string): TokenPayload {
     try {
       return this.jwt.verify(token, {
@@ -98,7 +98,10 @@ export class AuthService {
     ]);
 
     const hashedRefreshToken = await argon.hash(refreshToken);
-    await this.tokenRepository.save(userId, hashedRefreshToken);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { refreshToken: hashedRefreshToken },
+    });
 
     return { accessToken, refreshToken };
   }

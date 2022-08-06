@@ -67,10 +67,12 @@ export class UserService {
     const passwordMatches = await argon.verify(user.password, oldPassword);
     if (!passwordMatches) throw new ForbiddenException('Forbidden');
 
+    const hashedNewPassword = await argon.hash(newPassword);
+
     const updatedUser = await this.prisma.user.update({
       where: { id },
       data: {
-        password: newPassword,
+        password: hashedNewPassword,
         updatedAt: new Date().toISOString(),
         version: { increment: 1 },
       },
