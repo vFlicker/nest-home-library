@@ -1,26 +1,31 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { LoggerMiddleware } from './common/middlewares';
 import {
   AlbumModule,
   ArtistModule,
   AuthModule,
   FavoriteModule,
+  PrismaModule,
   TrackModule,
   UserModule,
-  PrismaModule,
 } from './modules';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    UserModule,
-    ArtistModule,
     AlbumModule,
-    FavoriteModule,
-    TrackModule,
-    PrismaModule,
+    ArtistModule,
     AuthModule,
+    FavoriteModule,
+    PrismaModule,
+    TrackModule,
+    UserModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
