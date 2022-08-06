@@ -1,11 +1,15 @@
-import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
+
+import { LoggingService } from '../../modules/logging/logging.service';
 
 import { getFullUrl } from '../utils';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  private readonly logger = new Logger('HTTP');
+  constructor(private readonly logger: LoggingService) {
+    this.logger.setContext('HTTP');
+  }
 
   use(request: Request, response: Response, next: NextFunction): void {
     this.logger.log(`Url: ${getFullUrl(request)}`);

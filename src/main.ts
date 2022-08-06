@@ -6,6 +6,7 @@ import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 import * as yaml from 'js-yaml';
 
+import { LoggingService } from './modules/logging/logging.service';
 import { HttpExceptionFilter } from './common/filters';
 import { AppModule } from './app.module';
 
@@ -18,6 +19,7 @@ async function bootstrap() {
   const document = yaml.load(openAPI);
   SwaggerModule.setup('doc', app, document);
 
+  app.useLogger(new LoggingService());
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
