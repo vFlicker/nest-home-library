@@ -1,5 +1,5 @@
 services:
-  nodejs-services:
+  main:
     image: nest-app
     container_name: nest-app
     build:
@@ -7,9 +7,11 @@ services:
       target: development
     env_file:
       - .env
+    environment:
+      DB_DATABASE_URL: postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:${DB_PORT}/${DB_DATABASE_NAME}?schema=public
     command: npm run start:dev
     ports:
-      - ${SERVER_PORT}:${SERVER_PORT}
+      - ${PORT}:${PORT}
     restart: always
     networks:
       - nest-app-network
@@ -24,7 +26,7 @@ services:
     container_name: postgres
     build:
       context: .
-      dockerfile: ./database/Dockerfile
+      dockerfile: ./src/database/Dockerfile
     command: postgres -c logging_collector=on
     ports:
       - ${DB_PORT}:${DB_PORT}

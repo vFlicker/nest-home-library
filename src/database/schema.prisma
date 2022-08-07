@@ -1,0 +1,58 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  login     String
+  password  String
+  version   Int      @default(1)
+  createdAt DateTime // @default(now())
+  updatedAt DateTime // @updatedAt will be set on update, but tests will fail
+}
+
+model Favorite {
+  id      String   @id @default(uuid()) @db.Uuid
+  artists Artist[]
+  albums  Album[]
+  tracks  Track[]
+}
+
+model Album {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  year       Int
+  Artist     Artist?   @relation(fields: [artistId], references: [id])
+  artistId   String?   @db.Uuid
+  Favorite   Favorite? @relation(fields: [favoriteId], references: [id])
+  favoriteId String?   @db.Uuid
+  Tracks     Track[]
+}
+
+model Artist {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  grammy     Boolean
+  Favorite   Favorite? @relation(fields: [favoriteId], references: [id])
+  favoriteId String?   @db.Uuid
+  Albums     Album[]
+  Tracks     Track[]
+}
+
+model Track {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  duration   Int
+  Album      Album?    @relation(fields: [albumId], references: [id])
+  albumId    String?   @db.Uuid
+  Artist     Artist?   @relation(fields: [artistId], references: [id])
+  artistId   String?   @db.Uuid
+  Favorite   Favorite? @relation(fields: [favoriteId], references: [id])
+  favoriteId String?   @db.Uuid
+}

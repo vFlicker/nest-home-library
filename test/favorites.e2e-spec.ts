@@ -63,6 +63,8 @@ describe('Favorites (e2e)', () => {
         .get(favoritesRoutes.getAll)
         .set(commonHeaders);
 
+      console.log(response.body);
+
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toBeInstanceOf(Object);
       expect(response.body).toHaveProperty('artists');
