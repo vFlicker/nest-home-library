@@ -4,17 +4,17 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 
-import { Album } from '../albums/interfaces/album.interface';
+import { AlbumEntity } from '../albums/entities/album.entity';
 import { DatabaseService } from '../database/database.service';
-import { Artist } from '../artists/interfaces/artist.interface';
-import { Track } from '../tracks/interfaces/track.interface';
-import { Favorites } from './interfaces/favorite.interface';
+import { ArtistEntity } from '../artists/entities/artist.entity';
+import { TrackEntity } from '../tracks/entities/track.entity';
+import { FavoritesEntity } from './entities/favorite.entity';
 
 @Injectable()
 export class FavoriteService {
   constructor(private readonly database: DatabaseService) {}
 
-  addAlbum(id: string): Album {
+  addAlbum(id: string): AlbumEntity {
     const album = this.database.albums.find((album) => album.id === id);
     if (!album) {
       throw new UnprocessableEntityException(`Album doesn't exist.`);
@@ -24,7 +24,7 @@ export class FavoriteService {
     return album;
   }
 
-  addArtist(id: string): Artist {
+  addArtist(id: string): ArtistEntity {
     const artist = this.database.artists.find((artist) => artist.id === id);
     if (!artist) {
       throw new UnprocessableEntityException(`Artist doesn't exist.`);
@@ -34,7 +34,7 @@ export class FavoriteService {
     return artist;
   }
 
-  addTrack(id: string): Track {
+  addTrack(id: string): TrackEntity {
     const track = this.database.tracks.find((track) => track.id === id);
     if (!track) {
       throw new UnprocessableEntityException(`Track with doesn't exist.`);
@@ -43,7 +43,7 @@ export class FavoriteService {
     return track;
   }
 
-  findAll(): Favorites {
+  findAll(): FavoritesEntity {
     return {
       albums: this.database.favorites.albums,
       artists: this.database.favorites.artists,

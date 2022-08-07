@@ -6,13 +6,13 @@ import { DatabaseService } from '../database/database.service';
 import { Message } from './constants/message.constants';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { Album } from './interfaces/album.interface';
+import { AlbumEntity } from './entities/album.entity';
 
 @Injectable()
 export class AlbumService {
   constructor(private readonly database: DatabaseService) {}
 
-  create(createAlbumDto: CreateAlbumDto) {
+  create(createAlbumDto: CreateAlbumDto): AlbumEntity {
     const newAlbum = {
       id: createId(),
       ...createAlbumDto,
@@ -21,23 +21,23 @@ export class AlbumService {
     return newAlbum;
   }
 
-  findAll(): Album[] {
+  findAll(): AlbumEntity[] {
     return this.database.albums;
   }
 
-  findOne(id: string) {
+  findOne(id: string): AlbumEntity {
     const album = this.database.albums.find((album) => album.id === id);
     if (!album) throw new NotFoundException(Message.NOT_FOUND);
     return album;
   }
 
-  update(id: string, updateAlbumDto: UpdateAlbumDto) {
+  update(id: string, updateAlbumDto: UpdateAlbumDto): AlbumEntity {
     const album = this.findOne(id);
     Object.assign(album, updateAlbumDto);
     return album;
   }
 
-  remove(id: string) {
+  remove(id: string): void {
     const album = this.database.albums.find((album) => album.id === id);
     if (!album) throw new NotFoundException(Message.NOT_FOUND);
 

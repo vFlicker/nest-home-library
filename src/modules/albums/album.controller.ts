@@ -14,24 +14,24 @@ import {
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { Album } from './interfaces/album.interface';
+import { AlbumEntity } from './entities/album.entity';
 
 @Controller('album')
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
   @Post()
-  create(@Body() createAlbumDto: CreateAlbumDto): Album {
+  create(@Body() createAlbumDto: CreateAlbumDto): AlbumEntity {
     return this.albumService.create(createAlbumDto);
   }
 
   @Get()
-  findAll(): Album[] {
+  findAll(): AlbumEntity[] {
     return this.albumService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string): Album {
+  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string): AlbumEntity {
     return this.albumService.findOne(id);
   }
 
@@ -39,7 +39,7 @@ export class AlbumController {
   update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
-  ): Album {
+  ): AlbumEntity {
     return this.albumService.update(id, updateAlbumDto);
   }
 

@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 
-import { Album } from 'src/modules/albums/interfaces/album.interface';
-import { Artist } from '../artists/interfaces/artist.interface';
-import { Favorites } from '../favorites/interfaces/favorite.interface';
-import { Track } from '../tracks/interfaces/track.interface';
-import { User } from '../users/entities/user.entities';
+import { AlbumEntity } from 'src/modules/albums/entities/album.entity';
+import { ArtistEntity } from '../artists/entities/artist.entity';
+import { FavoritesEntity } from '../favorites/entities/favorite.entity';
+import { TrackEntity } from '../tracks/entities/track.entity';
+import { UserEntity } from '../users/entities/user.entity';
 
 @Injectable()
 export class DatabaseService {
-  albums: Album[] = [];
-  tracks: Track[] = [];
-  artists: Artist[] = [];
-  users: User[] = [];
-  favorites: Favorites = {
+  albums: AlbumEntity[] = [];
+  tracks: TrackEntity[] = [];
+  artists: ArtistEntity[] = [];
+  users: UserEntity[] = [];
+  favorites: FavoritesEntity = {
     albums: [],
     tracks: [],
     artists: [],

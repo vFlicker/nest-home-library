@@ -5,13 +5,13 @@ import { DatabaseService } from '../database/database.service';
 import { Message } from './constants/message.constants';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { Track } from './interfaces/track.interface';
+import { TrackEntity } from './entities/track.entity';
 
 @Injectable()
 export class TrackService {
   constructor(private readonly database: DatabaseService) {}
 
-  create(createTrackDto: CreateTrackDto): Track {
+  create(createTrackDto: CreateTrackDto): TrackEntity {
     const newTrack = {
       id: createId(),
       ...createTrackDto,
@@ -21,23 +21,23 @@ export class TrackService {
     return newTrack;
   }
 
-  findAll() {
+  findAll(): TrackEntity[] {
     return this.database.tracks;
   }
 
-  findOne(id: string) {
+  findOne(id: string): TrackEntity {
     const track = this.database.tracks.find((track) => track.id === id);
     if (!track) throw new NotFoundException(Message.NOT_FOUND);
     return track;
   }
 
-  update(id: string, updateTrackDto: UpdateTrackDto) {
+  update(id: string, updateTrackDto: UpdateTrackDto): TrackEntity {
     const track = this.findOne(id);
     Object.assign(track, updateTrackDto);
     return track;
   }
 
-  remove(id: string) {
+  remove(id: string): void {
     const track = this.database.tracks.find((track) => track.id === id);
     if (!track) throw new NotFoundException(Message.NOT_FOUND);
 

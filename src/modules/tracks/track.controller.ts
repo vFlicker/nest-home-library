@@ -14,24 +14,26 @@ import {
 import { TrackService } from './track.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { Track } from './interfaces/track.interface';
+import { TrackEntity } from './entities/track.entity';
 
 @Controller('track')
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}
 
   @Post()
-  create(@Body() createTrackDto: CreateTrackDto): Track {
+  create(@Body() createTrackDto: CreateTrackDto): TrackEntity {
     return this.trackService.create(createTrackDto);
   }
 
   @Get()
-  findAll(): Track[] {
+  findAll(): TrackEntity[] {
     return this.trackService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string): Track {
+  findOne(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): TrackEntity {
     return this.trackService.findOne(id);
   }
 
@@ -39,7 +41,7 @@ export class TrackController {
   update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateTrackDto: UpdateTrackDto,
-  ): Track {
+  ): TrackEntity {
     return this.trackService.update(id, updateTrackDto);
   }
 

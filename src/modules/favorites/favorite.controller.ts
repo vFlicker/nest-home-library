@@ -9,9 +9,10 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
-import { Album } from '../albums/interfaces/album.interface';
-import { Artist } from '../artists/interfaces/artist.interface';
-import { Track } from '../tracks/interfaces/track.interface';
+import { AlbumEntity } from '../albums/entities/album.entity';
+import { ArtistEntity } from '../artists/entities/artist.entity';
+import { TrackEntity } from '../tracks/entities/track.entity';
+import { FavoritesEntity } from './entities/favorite.entity';
 import { FavoriteService } from './favorite.service';
 
 @Controller('favs')
@@ -21,44 +22,50 @@ export class FavoriteController {
   @Post('/album/:id')
   addAlbum(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Album {
+  ): AlbumEntity {
     return this.favoriteService.addAlbum(id);
   }
 
   @Post('/artist/:id')
   addArtist(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Artist {
+  ): ArtistEntity {
     return this.favoriteService.addArtist(id);
   }
 
   @Post('/track/:id')
   addTrack(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Track {
+  ): TrackEntity {
     return this.favoriteService.addTrack(id);
   }
 
   @Get()
-  findAll() {
+  findAll(): FavoritesEntity {
     return this.favoriteService.findAll();
   }
 
   @Delete('/album/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeAlbum(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+  removeAlbum(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): void {
     return this.favoriteService.removeAlbum(id);
   }
 
   @Delete('/artist/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeArtist(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+  removeArtist(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): void {
     return this.favoriteService.removeArtist(id);
   }
 
   @Delete('/track/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeTrack(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+  removeTrack(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): void {
     return this.favoriteService.removeTrack(id);
   }
 }
