@@ -3,20 +3,16 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
+  LogLevel,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { BaseExceptionFilter } from '@nestjs/core';
 import { PrismaClientKnownRequestError as PrismaException } from '@prisma/client/runtime';
 
-import { LoggingService } from '../../modules/logging/logging.service';
-
 @Catch(HttpException, PrismaException)
 export class AllExceptionFilter extends BaseExceptionFilter {
-  constructor(private readonly logger: LoggingService) {
-    super();
-
-    this.logger.setContext(AllExceptionFilter.name);
-  }
+  private logger = new Logger(AllExceptionFilter.name);
 
   catch(exception: HttpException | PrismaException, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();

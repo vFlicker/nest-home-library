@@ -1,24 +1,56 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, Logger, LogLevel, NestMiddleware } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Request, Response, NextFunction } from 'express';
 
-import { LoggingService } from '../../modules/logging/logging.service';
-
-import { getFullUrl } from '../utils';
+import { getLogLevel } from '../utils';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  constructor(private readonly logger: LoggingService) {
-    this.logger.setContext('HTTP');
+  private logger = new Logger('HTTP');
+  private level: LogLevel[];
+
+  constructor(configService: ConfigService) {
+    const levelEnv = configService.get('LOGGER_LEVEL');
+    this.level = getLogLevel(levelEnv);
   }
 
   use(request: Request, response: Response, next: NextFunction): void {
-    this.logger.log(`Url: ${getFullUrl(request)}`);
-    this.logger.log(`Query parameters: ${JSON.stringify(request.query)}`);
-    this.logger.log(`Body: ${JSON.stringify(request.body)}`);
+    const { body, query, ip, method, originalUrl } = request;
+    const userAgent = request.get('user-agent') || '';
 
     response.on('finish', () => {
-      const { statusCode } = response;
-      this.logger.log(`Status code: ${statusCode}`);
+      const { statusCode, statusMessage } = response;
+      const contentLength = response.get('content-length');
+
+      const message = `Method: ${method} URL: ${originalUrl} query: ${JSON.stringify(
+        query,
+      )} Body: ${JSON.stringify(
+        body,
+      )} StatusCode: ${statusCode} StatusMessage: ${statusMessage} ContentLength: ${contentLength} - ${userAgent} ${ip}`;
+
+      if (this.level.includes('error') && statusCode >= 500) {
+        return this.logger.error(message);
+      }
+
+      if (
+        this.level.includes('warn') &&
+        statusCode >= 400 &&
+        statusCode < 500
+      ) {
+        return this.logger.warn(message);
+      }
+
+      if (this.level.includes('log') && statusCode < 400) {
+        return this.logger.log(message);
+      }
+
+      if (this.level.includes('verbose') && statusCode < 400) {
+        return this.logger.log(message);
+      }
+
+      if (this.level.includes('debug') && statusCode < 400) {
+        return this.logger.log(message);
+      }
     });
 
     next();

@@ -1,1 +1,1 @@
-export * from './get-full-url';
+export * from './logger';
