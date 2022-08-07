@@ -1,7 +1,15 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import { LoginDto, RefreshDto, SignupDto } from './dto';
+import { AuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +29,7 @@ export class AuthController {
 
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   refresh(@Body() refreshDto: RefreshDto) {
     return this.authService.refresh(refreshDto);
   }
