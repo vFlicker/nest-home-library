@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { AllExceptionFilter } from './common/filters';
 import { LoggerMiddleware } from './common/middlewares';
 import {
   AlbumModule,
@@ -24,6 +25,12 @@ import {
     PrismaModule,
     TrackModule,
     UserModule,
+  ],
+  providers: [
+    {
+      provide: 'APP_FILTER',
+      useClass: AllExceptionFilter,
+    },
   ],
 })
 export class AppModule implements NestModule {

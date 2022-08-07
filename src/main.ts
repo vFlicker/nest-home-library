@@ -7,7 +7,6 @@ import { resolve } from 'path';
 import * as yaml from 'js-yaml';
 
 import { LoggingService } from './modules/logging/logging.service';
-import { HttpExceptionFilter } from './common/filters';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -23,7 +22,6 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
-  app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(configService.get('PORT') || 4000);
 }
