@@ -1,26 +1,40 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { AllExceptionFilter } from './common/filters';
+import { LoggerMiddleware } from './common/middlewares';
 import {
   AlbumModule,
   ArtistModule,
   AuthModule,
   FavoriteModule,
+  LoggingModule,
+  PrismaModule,
   TrackModule,
   UserModule,
-  PrismaModule,
 } from './modules';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    UserModule,
-    ArtistModule,
     AlbumModule,
-    FavoriteModule,
-    TrackModule,
-    PrismaModule,
+    ArtistModule,
     AuthModule,
+    FavoriteModule,
+    LoggingModule,
+    PrismaModule,
+    TrackModule,
+    UserModule,
+  ],
+  providers: [
+    {
+      provide: 'APP_FILTER',
+      useClass: AllExceptionFilter,
+    },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

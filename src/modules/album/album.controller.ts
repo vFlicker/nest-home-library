@@ -33,6 +33,7 @@ export class AlbumController {
   }
 
   @Get(':id')
+  @HttpCode(HttpStatus.OK)
   findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<AlbumEntity> {
