@@ -1,6 +1,6 @@
 import { Exclude, Transform } from 'class-transformer';
 
-export class User {
+export class UserEntity {
   id: string;
   login: string;
 
@@ -15,7 +15,7 @@ export class User {
   @Transform(({ value }) => new Date(value).getTime())
   updatedAt: number;
 
-  constructor(partial: Partial<User>) {
+  constructor(partial: Partial<UserEntity>) {
     Object.assign(this, partial);
   }
 }
