@@ -5,13 +5,13 @@ import { DatabaseService } from '../database/database.service';
 import { Message } from './constants/message.constants';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { Track } from './interfaces/track.interface';
+import { TrackEntity } from './entities/track.entity';
 
 @Injectable()
 export class TrackService {
   constructor(private readonly database: DatabaseService) {}
 
-  create(createTrackDto: CreateTrackDto): Track {
+  create(createTrackDto: CreateTrackDto): TrackEntity {
     const newTrack = {
       id: createId(),
       ...createTrackDto,

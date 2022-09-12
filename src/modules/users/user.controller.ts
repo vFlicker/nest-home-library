@@ -16,12 +16,12 @@ import { uuidV4Decorator } from '../../common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { UserEntity } from './entities/user.entities';
+import { UserEntity } from './entities/user.entity';
 
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private userService: UserService) {}
 
   @Post()
   create(@Body() createUserDto: CreateUserDto): UserEntity {

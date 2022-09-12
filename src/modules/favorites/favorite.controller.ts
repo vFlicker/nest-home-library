@@ -9,9 +9,9 @@ import {
 } from '@nestjs/common';
 
 import { uuidV4Decorator } from '../../common';
-import { Album } from '../albums/interfaces/album.interface';
-import { Artist } from '../artists/interfaces/artist.interface';
-import { Track } from '../tracks/interfaces/track.interface';
+import { AlbumEntity } from '../albums/entities/album.entity';
+import { ArtistEntity } from '../artists/entities/artist.entity';
+import { TrackEntity } from '../tracks/entities/track.entity';
 import { FavoriteService } from './favorite.service';
 
 @Controller('favs')
@@ -19,17 +19,17 @@ export class FavoriteController {
   constructor(private readonly favoriteService: FavoriteService) {}
 
   @Post('/album/:id')
-  addAlbum(@Param('id', uuidV4Decorator) id: string): Album {
+  addAlbum(@Param('id', uuidV4Decorator) id: string): AlbumEntity {
     return this.favoriteService.addAlbum(id);
   }
 
   @Post('/artist/:id')
-  addArtist(@Param('id', uuidV4Decorator) id: string): Artist {
+  addArtist(@Param('id', uuidV4Decorator) id: string): ArtistEntity {
     return this.favoriteService.addArtist(id);
   }
 
   @Post('/track/:id')
-  addTrack(@Param('id', uuidV4Decorator) id: string): Track {
+  addTrack(@Param('id', uuidV4Decorator) id: string): TrackEntity {
     return this.favoriteService.addTrack(id);
   }
 

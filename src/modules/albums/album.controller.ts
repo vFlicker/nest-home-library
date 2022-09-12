@@ -14,24 +14,24 @@ import { uuidV4Decorator } from '../../common';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { Album } from './interfaces/album.interface';
+import { AlbumEntity } from './entities/album.entity';
 
 @Controller('album')
 export class AlbumController {
-  constructor(private readonly albumService: AlbumService) {}
+  constructor(private albumService: AlbumService) {}
 
   @Post()
-  create(@Body() createAlbumDto: CreateAlbumDto): Album {
+  create(@Body() createAlbumDto: CreateAlbumDto): AlbumEntity {
     return this.albumService.create(createAlbumDto);
   }
 
   @Get()
-  findAll(): Album[] {
+  findAll(): AlbumEntity[] {
     return this.albumService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', uuidV4Decorator) id: string): Album {
+  findOne(@Param('id', uuidV4Decorator) id: string): AlbumEntity {
     return this.albumService.findOne(id);
   }
 
@@ -39,7 +39,7 @@ export class AlbumController {
   update(
     @Param('id', uuidV4Decorator) id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
-  ): Album {
+  ): AlbumEntity {
     return this.albumService.update(id, updateAlbumDto);
   }
 

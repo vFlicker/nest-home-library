@@ -5,13 +5,13 @@ import { DatabaseService } from '../database/database.service';
 import { Message } from './constants/message.constants';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { Artist } from './interfaces/artist.interface';
+import { ArtistEntity } from './entities/artist.entity';
 
 @Injectable()
 export class ArtistService {
   constructor(private readonly database: DatabaseService) {}
 
-  create(createArtistDto: CreateArtistDto): Artist {
+  create(createArtistDto: CreateArtistDto): ArtistEntity {
     const newArtist = {
       id: createId(),
       ...createArtistDto,
@@ -21,17 +21,17 @@ export class ArtistService {
     return newArtist;
   }
 
-  findAll(): Artist[] {
+  findAll(): ArtistEntity[] {
     return this.database.artists;
   }
 
-  findOne(id: string): Artist {
+  findOne(id: string): ArtistEntity {
     const artist = this.database.artists.find((artist) => artist.id === id);
     if (!artist) throw new NotFoundException(Message.NOT_FOUND);
     return artist;
   }
 
-  update(id: string, updateArtistDto: UpdateArtistDto): Artist {
+  update(id: string, updateArtistDto: UpdateArtistDto): ArtistEntity {
     const artist = this.findOne(id);
     Object.assign(artist, updateArtistDto);
     return artist;

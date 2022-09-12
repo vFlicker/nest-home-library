@@ -14,24 +14,24 @@ import { uuidV4Decorator } from '../../common';
 import { TrackService } from './track.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { Track } from './interfaces/track.interface';
+import { TrackEntity } from './entities/track.entity';
 
 @Controller('track')
 export class TrackController {
-  constructor(private readonly trackService: TrackService) {}
+  constructor(private trackService: TrackService) {}
 
   @Post()
-  create(@Body() createTrackDto: CreateTrackDto): Track {
+  create(@Body() createTrackDto: CreateTrackDto): TrackEntity {
     return this.trackService.create(createTrackDto);
   }
 
   @Get()
-  findAll(): Track[] {
+  findAll(): TrackEntity[] {
     return this.trackService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', uuidV4Decorator) id: string): Track {
+  findOne(@Param('id', uuidV4Decorator) id: string): TrackEntity {
     return this.trackService.findOne(id);
   }
 
@@ -39,7 +39,7 @@ export class TrackController {
   update(
     @Param('id', uuidV4Decorator) id: string,
     @Body() updateTrackDto: UpdateTrackDto,
-  ): Track {
+  ): TrackEntity {
     return this.trackService.update(id, updateTrackDto);
   }
 

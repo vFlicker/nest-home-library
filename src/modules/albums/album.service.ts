@@ -6,7 +6,7 @@ import { DatabaseService } from '../database/database.service';
 import { Message } from './constants/message.constants';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { Album } from './interfaces/album.interface';
+import { AlbumEntity } from './entities/album.entity';
 
 @Injectable()
 export class AlbumService {
@@ -21,7 +21,7 @@ export class AlbumService {
     return newAlbum;
   }
 
-  findAll(): Album[] {
+  findAll(): AlbumEntity[] {
     return this.database.albums;
   }
 
