@@ -32,7 +32,7 @@ export class AlbumController {
 
   @Get(':id')
   findOne(@Param('id', uuidV4Decorator) id: string): AlbumEntity {
-    return this.albumService.findOne(id);
+    return this.albumService.findOneById(id);
   }
 
   @Put(':id')

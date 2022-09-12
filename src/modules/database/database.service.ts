@@ -6,9 +6,9 @@ import { TrackEntity } from '../tracks/entities/track.entity';
 import { UserEntity } from '../users/entities/user.entity';
 
 type Favorites = {
-  albums: AlbumEntity[];
-  artists: ArtistEntity[];
-  tracksIds: string[];
+  albumIds: string[];
+  artistIds: string[];
+  trackIds: string[];
 };
 
 @Injectable()
@@ -16,9 +16,9 @@ export class DatabaseService {
   albums: AlbumEntity[] = [];
   artists: ArtistEntity[] = [];
   favorites: Favorites = {
-    albums: [],
-    artists: [],
-    tracksIds: [],
+    albumIds: [],
+    artistIds: [],
+    trackIds: [],
   };
   tracks: TrackEntity[] = [];
   users: UserEntity[] = [];

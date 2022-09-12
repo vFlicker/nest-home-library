@@ -32,7 +32,7 @@ export class ArtistController {
 
   @Get(':id')
   findOne(@Param('id', uuidV4Decorator) id: string): ArtistEntity {
-    return this.artistService.findOne(id);
+    return this.artistService.findOneById(id);
   }
 
   @Put(':id')

@@ -43,7 +43,7 @@ export class TrackService {
     return track;
   }
 
-  findManyByIds(ids: string[]) {
+  findManyByIds(ids: string[]): TrackEntity[] {
     const tracks = this.database.tracks.filter(({ id }) => ids.includes(id));
     return tracks;
   }
@@ -63,5 +63,21 @@ export class TrackService {
 
     this.database.tracks.splice(trackIndex, 1);
     this.favoriteService.handleRemoveTrack(id);
+  }
+
+  handleRemoveAlbumFromTrack(id: string) {
+    const tracks = this.findAll();
+
+    for (const track of tracks) {
+      if (track.albumId === id) track.albumId = null;
+    }
+  }
+
+  handleRemoveArtistFromTrack(id: string) {
+    const tracks = this.findAll();
+
+    for (const track of tracks) {
+      if (track.artistId === id) track.artistId = null;
+    }
   }
 }
