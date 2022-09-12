@@ -5,6 +5,12 @@ import * as fs from 'fs/promises';
 
 import { checkStart, getLogLevel, getLogSeparate } from '../../common/utils';
 
+const LOG_DIR = 'logs';
+const LOG_ERROR_DIR = 'logs/error';
+
+const createLogFileName = (): string => `log_${Date.now()}.log`;
+const createErrorLogFileName = (): string => `error_${Date.now()}.log`;
+
 @Injectable()
 export class LoggingService {
   private level: LogLevel[];
@@ -20,16 +26,18 @@ export class LoggingService {
 
   async createLog(log) {
     if (!this.level.includes(log.level)) return;
+
     const logString = `[NEST] ${new Date().toUTCString()} [Level: ${
       log.level
     }] Context: ${log.context} Message: ${log.message}${EOL}`;
-    const size = +process.env.LOGGER_MAX_FILE_SIZE;
+    const logErrorString = `Created errors file ${EOL}`;
+    const size = Number(process.env.LOGGER_MAX_FILE_SIZE);
 
     try {
       if (checkStart(log.context)) return;
 
       if (this.separate && log.level === 'error') {
-        const files = await fs.readdir('src/logs/errors');
+        const files = await fs.readdir(LOG_ERROR_DIR);
         const currentFile = files[files.length - 1];
 
         if (!currentFile) {
@@ -37,59 +45,47 @@ export class LoggingService {
             logString,
             0,
             size,
-            `error_${Date.now()}.log`,
-            'src/logs/errors',
+            createErrorLogFileName(),
+            LOG_ERROR_DIR,
           );
         } else {
-          const lastFileStat = await fs.stat(`src/logs/errors/${currentFile}`);
+          const lastFileStat = await fs.stat(`${LOG_ERROR_DIR}/${currentFile}`);
           const lastFileSize = lastFileStat.size;
           await this.createFile(
             logString,
             lastFileSize,
             size,
             currentFile,
-            'src/logs/errors',
+            LOG_ERROR_DIR,
           );
         }
       }
 
-      const files = await fs.readdir('src/logs');
+      const files = await fs.readdir(LOG_DIR);
       const currentFile = files[files.length - 1];
       if (!currentFile) {
-        await this.createFile(
-          logString,
-          0,
-          size,
-          `log_${Date.now()}.log`,
-          'src/logs',
-        );
+        await this.createFile(logString, 0, size, createLogFileName(), LOG_DIR);
       } else {
-        const lastFileStat = await fs.stat(`src/logs/${currentFile}`);
+        const lastFileStat = await fs.stat(`${LOG_DIR}/${currentFile}`);
         const lastFileSize = lastFileStat.size;
         await this.createFile(
           logString,
           lastFileSize,
           size,
           currentFile,
-          'src/logs',
+          LOG_DIR,
         );
       }
     } catch (error) {
-      await fs.mkdir('src/logs');
-      await fs.mkdir('src/logs/errors');
+      await fs.mkdir(LOG_DIR);
+      await fs.mkdir(LOG_ERROR_DIR);
+      await this.createFile(logString, 0, size, createLogFileName(), LOG_DIR);
       await this.createFile(
-        logString,
+        logErrorString,
         0,
         size,
-        `log_${Date.now()}.log`,
-        'src/logs',
-      );
-      await this.createFile(
-        `Created errors file ${EOL}`,
-        0,
-        size,
-        `error_${Date.now()}.log`,
-        'src/logs/errors',
+        createErrorLogFileName(),
+        LOG_ERROR_DIR,
       );
     }
   }
@@ -97,7 +93,7 @@ export class LoggingService {
   async createFile(logString, lastFileSize, size, currentFile, path) {
     if (lastFileSize >= size - 1024) {
       try {
-        await fs.writeFile(`${path}/log_${Date.now()}.log`, logString);
+        await fs.writeFile(`${path}/${createLogFileName()}`, logString);
       } catch (error) {
         console.error(error);
       }

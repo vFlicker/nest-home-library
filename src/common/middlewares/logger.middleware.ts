@@ -2,7 +2,7 @@ import { Injectable, Logger, LogLevel, NestMiddleware } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response, NextFunction } from 'express';
 
-import { getLogLevel } from '../utils';
+import { getLogLevel, getFullUrl } from '../utils';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -15,16 +15,16 @@ export class LoggerMiddleware implements NestMiddleware {
   }
 
   use(request: Request, response: Response, next: NextFunction): void {
-    const { body, query, ip, method, originalUrl } = request;
+    const { body, query, ip, method } = request;
     const userAgent = request.get('user-agent') || '';
 
     response.on('finish', () => {
       const { statusCode, statusMessage } = response;
       const contentLength = response.get('content-length');
 
-      const message = `Method: ${method} URL: ${originalUrl} query: ${JSON.stringify(
-        query,
-      )} Body: ${JSON.stringify(
+      const message = `Method: ${method} URL: ${getFullUrl(
+        request,
+      )} query: ${JSON.stringify(query)} Body: ${JSON.stringify(
         body,
       )} StatusCode: ${statusCode} StatusMessage: ${statusMessage} ContentLength: ${contentLength} - ${userAgent} ${ip}`;
 
