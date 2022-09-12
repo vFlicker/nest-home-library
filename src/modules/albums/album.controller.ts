@@ -6,11 +6,11 @@ import {
   Param,
   Delete,
   Put,
-  ParseUUIDPipe,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 
+import { uuidV4Decorator } from '../../common';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
@@ -31,13 +31,13 @@ export class AlbumController {
   }
 
   @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string): Album {
+  findOne(@Param('id', uuidV4Decorator) id: string): Album {
     return this.albumService.findOne(id);
   }
 
   @Put(':id')
   update(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('id', uuidV4Decorator) id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
   ): Album {
     return this.albumService.update(id, updateAlbumDto);
@@ -45,7 +45,7 @@ export class AlbumController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string): void {
+  remove(@Param('id', uuidV4Decorator) id: string): void {
     return this.albumService.remove(id);
   }
 }

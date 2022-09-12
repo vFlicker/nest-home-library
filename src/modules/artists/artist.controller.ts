@@ -5,12 +5,12 @@ import {
   Body,
   Param,
   Delete,
-  ParseUUIDPipe,
   Put,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 
+import { uuidV4Decorator } from '../../common';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
@@ -31,15 +31,13 @@ export class ArtistController {
   }
 
   @Get(':id')
-  findOne(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Artist {
+  findOne(@Param('id', uuidV4Decorator) id: string): Artist {
     return this.artistService.findOne(id);
   }
 
   @Put(':id')
   update(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('id', uuidV4Decorator) id: string,
     @Body() updateArtistDto: UpdateArtistDto,
   ): Artist {
     return this.artistService.update(id, updateArtistDto);
@@ -47,7 +45,7 @@ export class ArtistController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string): void {
+  remove(@Param('id', uuidV4Decorator) id: string): void {
     return this.artistService.remove(id);
   }
 }
