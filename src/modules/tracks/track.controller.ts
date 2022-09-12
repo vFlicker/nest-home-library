@@ -32,7 +32,7 @@ export class TrackController {
 
   @Get(':id')
   findOne(@Param('id', uuidV4Decorator) id: string): TrackEntity {
-    return this.trackService.findOne(id);
+    return this.trackService.findOneById(id);
   }
 
   @Put(':id')

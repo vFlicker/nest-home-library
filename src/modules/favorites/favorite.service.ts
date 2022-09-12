@@ -1,4 +1,6 @@
 import {
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -8,11 +10,16 @@ import { DatabaseService } from '../database/database.service';
 import { AlbumEntity } from '../albums/entities/album.entity';
 import { ArtistEntity } from '../artists/entities/artist.entity';
 import { TrackEntity } from '../tracks/entities/track.entity';
+import { TrackService } from '../tracks/track.service';
 import { FavoritesEntity } from './entities/favorite.entity';
 
 @Injectable()
 export class FavoriteService {
-  constructor(private readonly database: DatabaseService) {}
+  constructor(
+    private database: DatabaseService,
+    @Inject(forwardRef(() => TrackService))
+    private trackService: TrackService,
+  ) {}
 
   addAlbum(id: string): AlbumEntity {
     const album = this.database.albums.find((album) => album.id === id);
@@ -36,10 +43,12 @@ export class FavoriteService {
 
   addTrack(id: string): TrackEntity {
     const track = this.database.tracks.find((track) => track.id === id);
+
     if (!track) {
       throw new UnprocessableEntityException(`Track with doesn't exist.`);
     }
-    this.database.favorites.tracks.push(track);
+
+    this.database.favorites.tracksIds.push(track.id);
     return track;
   }
 
@@ -47,7 +56,9 @@ export class FavoriteService {
     return {
       albums: this.database.favorites.albums,
       artists: this.database.favorites.artists,
-      tracks: this.database.favorites.tracks,
+      tracks: this.trackService.findManyByIds(
+        this.database.favorites.tracksIds,
+      ),
     };
   }
 
@@ -74,13 +85,17 @@ export class FavoriteService {
   }
 
   removeTrack(id: string): void {
-    const track = this.database.favorites.tracks.find(
-      (track) => track.id === id,
+    const track = this.database.favorites.tracksIds.findIndex(
+      (trackId) => trackId === id,
     );
-    if (!track) throw new NotFoundException();
 
-    this.database.favorites.tracks = this.database.favorites.tracks.filter(
-      (track) => track.id !== id,
-    );
+    if (track === -1) throw new NotFoundException();
+
+    this.handleRemoveTrack(id);
+  }
+
+  handleRemoveTrack(id: string) {
+    this.database.favorites.tracksIds =
+      this.database.favorites.tracksIds.filter((trackId) => trackId !== id);
   }
 }

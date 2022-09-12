@@ -1,7 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { v4 as createId } from 'uuid';
 
 import { DatabaseService } from '../database/database.service';
+import { FavoriteService } from '../favorites/favorite.service';
 import { Message } from './constants/message.constants';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
@@ -9,7 +15,11 @@ import { TrackEntity } from './entities/track.entity';
 
 @Injectable()
 export class TrackService {
-  constructor(private readonly database: DatabaseService) {}
+  constructor(
+    private database: DatabaseService,
+    @Inject(forwardRef(() => FavoriteService))
+    private favoriteService: FavoriteService,
+  ) {}
 
   create(createTrackDto: CreateTrackDto): TrackEntity {
     const newTrack = {
@@ -25,28 +35,33 @@ export class TrackService {
     return this.database.tracks;
   }
 
-  findOne(id: string) {
+  findOneById(id: string) {
     const track = this.database.tracks.find((track) => track.id === id);
+
     if (!track) throw new NotFoundException(Message.NOT_FOUND);
+
     return track;
   }
 
+  findManyByIds(ids: string[]) {
+    const tracks = this.database.tracks.filter(({ id }) => ids.includes(id));
+    return tracks;
+  }
+
   update(id: string, updateTrackDto: UpdateTrackDto) {
-    const track = this.findOne(id);
+    const track = this.findOneById(id);
     Object.assign(track, updateTrackDto);
     return track;
   }
 
   remove(id: string) {
-    const track = this.database.tracks.find((track) => track.id === id);
-    if (!track) throw new NotFoundException(Message.NOT_FOUND);
-
-    this.database.favorites.tracks = this.database.favorites.tracks.filter(
-      (track) => track.id !== id,
+    const trackIndex = this.database.tracks.findIndex(
+      (track) => track.id === id,
     );
 
-    this.database.tracks = this.database.tracks.filter(
-      (track) => track.id !== id,
-    );
+    if (trackIndex === -1) throw new NotFoundException(Message.NOT_FOUND);
+
+    this.database.tracks.splice(trackIndex, 1);
+    this.favoriteService.handleRemoveTrack(id);
   }
 }
