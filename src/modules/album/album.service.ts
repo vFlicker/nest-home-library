@@ -31,7 +31,7 @@ export class AlbumService {
     return albums;
   }
 
-  async findOne(id: string): Promise<AlbumEntity> {
+  async findOneById(id: string): Promise<AlbumEntity> {
     const album = await this.prisma.album.findUnique({ where: { id } });
 
     if (!album) throw new NotFoundException(Message.NOT_FOUND);

@@ -51,6 +51,8 @@ model Track {
   name       String
   duration   Int
   Album      Album?    @relation(fields: [albumId], references: [id])
+  // TODO:
+  // Album      Album?    @relation(fields: [albumId], references: [id], onDelete: SetNull)
   albumId    String?   @db.Uuid
   Artist     Artist?   @relation(fields: [artistId], references: [id])
   artistId   String?   @db.Uuid

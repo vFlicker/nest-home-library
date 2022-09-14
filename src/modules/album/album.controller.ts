@@ -6,12 +6,12 @@ import {
   Param,
   Delete,
   Put,
-  ParseUUIDPipe,
   HttpCode,
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
 
+import { uuidV4Decorator } from '../../common/decorators';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto, UpdateAlbumDto } from './dto';
@@ -22,27 +22,28 @@ import { AlbumEntity } from './entities/album.entity';
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
-  @Post()
-  create(@Body() createAlbumDto: CreateAlbumDto): Promise<AlbumEntity> {
-    return this.albumService.create(createAlbumDto);
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  findOneById(@Param('id', uuidV4Decorator) id: string): Promise<AlbumEntity> {
+    return this.albumService.findOneById(id);
   }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   findAll(): Promise<AlbumEntity[]> {
     return this.albumService.findAll();
   }
 
-  @Get(':id')
-  @HttpCode(HttpStatus.OK)
-  findOne(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<AlbumEntity> {
-    return this.albumService.findOne(id);
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  create(@Body() createAlbumDto: CreateAlbumDto): Promise<AlbumEntity> {
+    return this.albumService.create(createAlbumDto);
   }
 
   @Put(':id')
+  @HttpCode(HttpStatus.OK)
   update(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('id', uuidV4Decorator) id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
   ): Promise<AlbumEntity> {
     return this.albumService.update(id, updateAlbumDto);
@@ -50,9 +51,7 @@ export class AlbumController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<void> {
+  remove(@Param('id', uuidV4Decorator) id: string): Promise<void> {
     return this.albumService.remove(id);
   }
 }

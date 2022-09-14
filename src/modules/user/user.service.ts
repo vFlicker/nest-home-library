@@ -40,7 +40,7 @@ export class UserService {
     return users.map((user) => plainToClass(UserEntity, user));
   }
 
-  async findById(id: string): Promise<UserEntity> {
+  async findOneById(id: string): Promise<UserEntity> {
     const user = await this.prisma.user.findUnique({ where: { id } });
 
     if (!user) throw new NotFoundException(Message.NOT_FOUND);

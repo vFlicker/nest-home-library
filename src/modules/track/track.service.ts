@@ -39,7 +39,7 @@ export class TrackService {
     return tracks.map((track) => plainToClass(TrackEntity, track));
   }
 
-  async findOne(id: string): Promise<TrackEntity> {
+  async findOneById(id: string): Promise<TrackEntity> {
     const track = await this.prisma.track.findUnique({ where: { id } });
 
     if (!track) throw new NotFoundException(Message.NOT_FOUND);

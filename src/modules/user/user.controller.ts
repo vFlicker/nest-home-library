@@ -6,7 +6,6 @@ import {
   Param,
   Delete,
   Put,
-  ParseUUIDPipe,
   HttpCode,
   HttpStatus,
   UseInterceptors,
@@ -14,10 +13,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { UserService } from './user.service';
+import { uuidV4Decorator } from '../../common/decorators';
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { CreateUserDto, UpdatePasswordDto } from './dto';
 import { UserEntity } from './entities/user.entity';
-import { AuthGuard } from '../auth/guards/auth.guard';
+import { UserService } from './user.service';
 
 @Controller('user')
 @UseGuards(AuthGuard)
@@ -25,26 +25,28 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
-    return this.userService.create(createUserDto);
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  findOneById(@Param('id', uuidV4Decorator) id: string): Promise<UserEntity> {
+    return this.userService.findOneById(id);
   }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   findAll(): Promise<UserEntity[]> {
     return this.userService.findAll();
   }
 
-  @Get(':id')
-  findById(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<UserEntity> {
-    return this.userService.findById(id);
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  create(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
+    return this.userService.create(createUserDto);
   }
 
   @Put(':id')
+  @HttpCode(HttpStatus.OK)
   updatePassword(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('id', uuidV4Decorator) id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ): Promise<UserEntity> {
     return this.userService.updatePassword(id, updatePasswordDto);
@@ -52,9 +54,7 @@ export class UserController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<void> {
+  remove(@Param('id', uuidV4Decorator) id: string): Promise<void> {
     return this.userService.remove(id);
   }
 }

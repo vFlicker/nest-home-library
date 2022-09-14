@@ -23,7 +23,7 @@ export class ArtistService {
     return artists.map((artist) => plainToClass(ArtistEntity, artist));
   }
 
-  async findOne(id: string): Promise<ArtistEntity> {
+  async findOneById(id: string): Promise<ArtistEntity> {
     const artist = await this.prisma.artist.findUnique({ where: { id } });
 
     if (!artist) throw new NotFoundException(Message.NOT_FOUND);
