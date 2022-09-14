@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../common/services';
 import { Message } from './constants/message.constants';
 import { CreateTrackDto, UpdateTrackDto } from './dto';
 import { TrackEntity } from './entities/track.entity';

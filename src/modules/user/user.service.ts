@@ -7,7 +7,7 @@ import { plainToClass } from 'class-transformer';
 import { User } from '@prisma/client';
 import * as argon from 'argon2';
 
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../common/services';
 import { Message } from './constants/message.constants';
 import { CreateUserDto, UpdatePasswordDto } from './dto';
 import { UserEntity } from './entities/user.entity';

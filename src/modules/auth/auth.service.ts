@@ -3,13 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 
+import { PrismaService } from '../../common/services';
 import { Message } from '../user/constants/message.constants';
 import { UserEntity } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { LoginDto, RefreshDto } from './dto';
 import { SignupDto } from './dto/signup.dto';
 import { TokenPair, TokenPayload } from './interfaces';
-import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {

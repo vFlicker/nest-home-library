@@ -6,8 +6,8 @@ import {
 import { Artist, Track } from '@prisma/client';
 import { plainToClass } from 'class-transformer';
 
+import { PrismaService } from '../../common/services';
 import { AlbumEntity } from '../album/entities/album.entity';
-import { PrismaService } from '../prisma/prisma.service';
 import { Message } from './constants/message.constants';
 import { FavoriteEntity } from './entities/favorite.entity';
 
