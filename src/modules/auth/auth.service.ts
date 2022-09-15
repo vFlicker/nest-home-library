@@ -29,9 +29,7 @@ export class AuthService {
   }
 
   async login(dto: LoginDto): Promise<TokenPair> {
-    const { login } = dto;
-
-    const user = await this.userRepository.findOneByLogin(login);
+    const user = await this.userRepository.findOneByLogin(dto.login);
 
     if (!user) throw new NotFoundException(errorMessage.notFound('User'));
 
@@ -41,22 +39,22 @@ export class AuthService {
       throw new ForbiddenException(errorMessage.forbidden);
     }
 
-    const tokenPair = await this.issueTokenPair({ id: user.id, login });
+    const { id, login } = user;
+    const tokenPair = await this.issueTokenPair({ id, login });
     return tokenPair;
   }
 
   async refresh(dto: RefreshDto): Promise<TokenPair> {
-    const { refreshToken } = dto;
+    const tokenPayload = await this.verifyRefreshToken(dto.refreshToken);
+    const { id } = tokenPayload;
 
-    const tokenPayload = await this.verifyRefreshToken(refreshToken);
-
-    const user = await this.userRepository.findOneByLogin(tokenPayload.login);
+    const user = await this.userRepository.findOneById(id);
 
     if (!user) throw new NotFoundException(errorMessage.notFound('User'));
 
     const refreshTokenMatches = await argon.verify(
       user.refreshToken,
-      refreshToken,
+      dto.refreshToken,
     );
 
     if (!refreshTokenMatches) {
