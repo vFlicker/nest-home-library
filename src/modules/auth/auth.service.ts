@@ -1,12 +1,16 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
+import { plainToClass } from 'class-transformer';
 
 import { PrismaService } from '../../common/services';
 import { errorMessage } from '../../common/utils';
 import { UserEntity } from '../user/entities/user.entity';
-import { UserService } from '../user/user.service';
 import { LoginDto, RefreshDto } from './dto';
 import { SignupDto } from './dto/signup.dto';
 import { TokenPair, TokenPayload } from './interfaces';
@@ -17,21 +21,34 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly userService: UserService,
   ) {}
 
   async signup(signupDto: SignupDto): Promise<UserEntity> {
-    const user = await this.userService.create(signupDto);
-    return user;
+    const { login, password } = signupDto;
+
+    const passwordHash = await argon.hash(password);
+    const createdAt = new Date().toISOString();
+
+    const newUser = await this.prisma.user.create({
+      data: {
+        login,
+        password: passwordHash,
+        createdAt,
+        updatedAt: createdAt,
+      },
+    });
+
+    return plainToClass(UserEntity, newUser);
   }
 
   async login(loginDto: LoginDto): Promise<TokenPair> {
-    const user = await this.userService.findByLogin(loginDto.login);
+    const { login, password } = loginDto;
 
-    const passwordMatches = await argon.verify(
-      user.password,
-      loginDto.password,
-    );
+    const user = await this.prisma.user.findUnique({ where: { login } });
+
+    if (!user) throw new NotFoundException(errorMessage.notFound('User'));
+
+    const passwordMatches = await argon.verify(user.password, password);
     if (!passwordMatches) throw new ForbiddenException(errorMessage.forbidden);
 
     const tokenPair = await this.issueTokenPair(user.id, user.login);
@@ -39,9 +56,11 @@ export class AuthService {
   }
 
   async refresh(refreshDto: RefreshDto): Promise<TokenPair> {
-    const tokenPayload = this.verifyRefreshToken(refreshDto.refreshToken);
+    const { login } = this.verifyRefreshToken(refreshDto.refreshToken);
 
-    const user = await this.userService.findByLogin(tokenPayload.login);
+    const user = await this.prisma.user.findUnique({ where: { login } });
+
+    if (!user) throw new NotFoundException(errorMessage.notFound('User'));
 
     const refreshTokenMatches = await argon.verify(
       user.refreshToken,
