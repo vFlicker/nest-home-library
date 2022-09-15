@@ -18,7 +18,7 @@ import { FavoriteService } from './favorite.service';
 @Controller('favs')
 @UseGuards(AuthGuard)
 export class FavoriteController {
-  constructor(private readonly favoriteService: FavoriteService) {}
+  constructor(private favoriteService: FavoriteService) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)

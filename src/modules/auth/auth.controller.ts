@@ -19,20 +19,20 @@ export class AuthController {
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  signup(@Body() signupDto: SignupDto): Promise<UserEntity> {
-    return this.authService.signup(signupDto);
+  signup(@Body() dto: SignupDto): Promise<UserEntity> {
+    return this.authService.signup(dto);
   }
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() loginDto: LoginDto): Promise<TokenPair> {
-    return this.authService.login(loginDto);
+  login(@Body() dto: LoginDto): Promise<TokenPair> {
+    return this.authService.login(dto);
   }
 
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
-  refresh(@Body() refreshDto: RefreshDto): Promise<TokenPair> {
-    return this.authService.refresh(refreshDto);
+  refresh(@Body() dto: RefreshDto): Promise<TokenPair> {
+    return this.authService.refresh(dto);
   }
 }

@@ -20,7 +20,7 @@ import { ArtistEntity } from './entities/artist.entity';
 @Controller('artist')
 @UseGuards(AuthGuard)
 export class ArtistController {
-  constructor(private readonly artistService: ArtistService) {}
+  constructor(private artistService: ArtistService) {}
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)

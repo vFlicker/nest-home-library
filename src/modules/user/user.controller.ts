@@ -23,7 +23,7 @@ import { UserService } from './user.service';
 @UseGuards(AuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private userService: UserService) {}
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
@@ -39,17 +39,17 @@ export class UserController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
-    return this.userService.create(createUserDto);
+  create(@Body() dto: CreateUserDto): Promise<UserEntity> {
+    return this.userService.create(dto);
   }
 
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   updatePassword(
     @Param('id', uuidV4Decorator) id: string,
-    @Body() updatePasswordDto: UpdatePasswordDto,
+    @Body() dto: UpdatePasswordDto,
   ): Promise<UserEntity> {
-    return this.userService.updatePassword(id, updatePasswordDto);
+    return this.userService.updatePassword(id, dto);
   }
 
   @Delete(':id')

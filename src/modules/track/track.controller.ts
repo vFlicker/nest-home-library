@@ -20,7 +20,7 @@ import { TrackService } from './track.service';
 @Controller('track')
 @UseGuards(AuthGuard)
 export class TrackController {
-  constructor(private readonly trackService: TrackService) {}
+  constructor(private trackService: TrackService) {}
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)

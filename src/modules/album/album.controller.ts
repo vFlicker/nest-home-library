@@ -20,7 +20,7 @@ import { AlbumEntity } from './entities/album.entity';
 @Controller('album')
 @UseGuards(AuthGuard)
 export class AlbumController {
-  constructor(private readonly albumService: AlbumService) {}
+  constructor(private albumService: AlbumService) {}
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)

@@ -7,7 +7,7 @@ import { getLogLevels } from './get-log-levels';
 
 @Injectable()
 export class CustomLogger extends ConsoleLogger {
-  private readonly loggingService: LoggingService;
+  private loggingService: LoggingService;
 
   constructor(
     context: string,

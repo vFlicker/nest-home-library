@@ -4,90 +4,71 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { User } from '@prisma/client';
 import * as argon from 'argon2';
 
-import { PrismaService } from '../../common/services';
 import { errorMessage } from '../../common/utils';
 import { CreateUserDto, UpdatePasswordDto } from './dto';
 import { UserEntity } from './entities/user.entity';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private userRepository: UserRepository) {}
 
   async findOneById(id: string): Promise<UserEntity> {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.userRepository.findOneById(id);
 
     if (!user) throw new NotFoundException(errorMessage.notFound('User'));
 
     return plainToClass(UserEntity, user);
   }
 
-  async findByLogin(login: string): Promise<User> {
-    // TODO: use findUnique
-    const user = await this.prisma.user.findUnique({ where: { login } });
-
-    if (!user) throw new NotFoundException(errorMessage.notFound('User'));
-
-    return user;
-  }
-
   async findAll(): Promise<UserEntity[]> {
-    const users = await this.prisma.user.findMany();
+    const users = await this.userRepository.findAll();
     return users.map((user) => plainToClass(UserEntity, user));
   }
 
-  // TODO: remove and use auth.service.signup
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    const { login, password } = createUserDto;
+  async create(dto: CreateUserDto): Promise<UserEntity> {
+    const { login, password } = dto;
 
     const passwordHash = await argon.hash(password);
-    const createdAt = new Date().toISOString();
 
-    const newUser = await this.prisma.user.create({
-      data: {
-        login,
-        password: passwordHash,
-        createdAt,
-        updatedAt: createdAt,
-      },
-    });
+    const user = await this.userRepository.create(login, passwordHash);
 
-    return plainToClass(UserEntity, newUser);
+    return plainToClass(UserEntity, user);
   }
 
   async updatePassword(
     id: string,
-    { newPassword, oldPassword }: UpdatePasswordDto,
+    dto: UpdatePasswordDto,
   ): Promise<UserEntity> {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const { oldPassword, newPassword } = dto;
+
+    const user = await this.userRepository.findOneById(id);
+
     if (!user) throw new NotFoundException(errorMessage.notFound('User'));
 
-    const passwordMatches = await argon.verify(user.password, oldPassword);
-    if (!passwordMatches) throw new ForbiddenException(errorMessage.forbidden);
+    const isPasswordMatches = await argon.verify(user.password, oldPassword);
 
-    const hashedNewPassword = await argon.hash(newPassword);
+    if (!isPasswordMatches) {
+      throw new ForbiddenException(errorMessage.forbidden);
+    }
 
-    const updatedUser = await this.prisma.user.update({
-      where: { id },
-      data: {
-        password: hashedNewPassword,
-        updatedAt: new Date().toISOString(),
-        version: { increment: 1 },
-      },
-    });
+    const newHashedPassword = await argon.hash(newPassword);
+
+    const updatedUser = await this.userRepository.updatePassword(
+      id,
+      newHashedPassword,
+    );
 
     return plainToClass(UserEntity, updatedUser);
   }
 
   async remove(id: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-    });
+    const user = await this.userRepository.findOneById(id);
 
     if (!user) throw new NotFoundException(errorMessage.notFound('User'));
 
-    await this.prisma.user.delete({ where: { id } });
+    await this.userRepository.remove(id);
   }
 }
