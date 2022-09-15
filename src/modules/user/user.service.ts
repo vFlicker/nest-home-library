@@ -8,13 +8,35 @@ import { User } from '@prisma/client';
 import * as argon from 'argon2';
 
 import { PrismaService } from '../../common/services';
-import { Message } from './constants/message.constants';
+import { errorMessage } from '../../common/utils';
 import { CreateUserDto, UpdatePasswordDto } from './dto';
 import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
+
+  async findOneById(id: string): Promise<UserEntity> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+
+    if (!user) throw new NotFoundException(errorMessage.notFound('User'));
+
+    return plainToClass(UserEntity, user);
+  }
+
+  async findByLogin(login: string): Promise<User> {
+    // TODO: use findUnique
+    const user = await this.prisma.user.findUnique({ where: { login } });
+
+    if (!user) throw new NotFoundException(errorMessage.notFound('User'));
+
+    return user;
+  }
+
+  async findAll(): Promise<UserEntity[]> {
+    const users = await this.prisma.user.findMany();
+    return users.map((user) => plainToClass(UserEntity, user));
+  }
 
   // TODO: remove and use auth.service.signup
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
@@ -35,37 +57,15 @@ export class UserService {
     return plainToClass(UserEntity, newUser);
   }
 
-  async findAll(): Promise<UserEntity[]> {
-    const users = await this.prisma.user.findMany();
-    return users.map((user) => plainToClass(UserEntity, user));
-  }
-
-  async findOneById(id: string): Promise<UserEntity> {
-    const user = await this.prisma.user.findUnique({ where: { id } });
-
-    if (!user) throw new NotFoundException(Message.NOT_FOUND);
-
-    return plainToClass(UserEntity, user);
-  }
-
-  async findByLogin(login: string): Promise<User> {
-    // TODO: use findUnique
-    const user = await this.prisma.user.findFirst({ where: { login } });
-
-    if (!user) throw new NotFoundException(Message.NOT_FOUND);
-
-    return user;
-  }
-
   async updatePassword(
     id: string,
     { newPassword, oldPassword }: UpdatePasswordDto,
   ): Promise<UserEntity> {
     const user = await this.prisma.user.findUnique({ where: { id } });
-    if (!user) throw new NotFoundException(Message.NOT_FOUND);
+    if (!user) throw new NotFoundException(errorMessage.notFound('User'));
 
     const passwordMatches = await argon.verify(user.password, oldPassword);
-    if (!passwordMatches) throw new ForbiddenException('Forbidden');
+    if (!passwordMatches) throw new ForbiddenException(errorMessage.forbidden);
 
     const hashedNewPassword = await argon.hash(newPassword);
 
@@ -86,7 +86,7 @@ export class UserService {
       where: { id },
     });
 
-    if (!user) throw new NotFoundException(Message.NOT_FOUND);
+    if (!user) throw new NotFoundException(errorMessage.notFound('User'));
 
     await this.prisma.user.delete({ where: { id } });
   }

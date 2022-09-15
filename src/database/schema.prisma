@@ -10,7 +10,7 @@ datasource db {
 
 model User {
   id           String   @id @default(uuid()) @db.Uuid
-  login        String
+  login        String   @unique
   password     String
   version      Int      @default(1)
   createdAt    DateTime // @default(now())
@@ -51,8 +51,6 @@ model Track {
   name       String
   duration   Int
   Album      Album?    @relation(fields: [albumId], references: [id])
-  // TODO:
-  // Album      Album?    @relation(fields: [albumId], references: [id], onDelete: SetNull)
   albumId    String?   @db.Uuid
   Artist     Artist?   @relation(fields: [artistId], references: [id])
   artistId   String?   @db.Uuid

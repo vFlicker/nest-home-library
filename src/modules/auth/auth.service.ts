@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 
 import { PrismaService } from '../../common/services';
-import { Message } from '../user/constants/message.constants';
+import { errorMessage } from '../../common/utils';
 import { UserEntity } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { LoginDto, RefreshDto } from './dto';
@@ -32,7 +32,7 @@ export class AuthService {
       user.password,
       loginDto.password,
     );
-    if (!passwordMatches) throw new ForbiddenException(Message.FORBIDDEN);
+    if (!passwordMatches) throw new ForbiddenException(errorMessage.forbidden);
 
     const tokenPair = await this.issueTokenPair(user.id, user.login);
     return tokenPair;
@@ -48,7 +48,7 @@ export class AuthService {
       refreshDto.refreshToken,
     );
     if (!refreshTokenMatches) {
-      throw new ForbiddenException(Message.FORBIDDEN);
+      throw new ForbiddenException(errorMessage.forbidden);
     }
 
     const tokenPair = await this.issueTokenPair(user.id, user.login);
