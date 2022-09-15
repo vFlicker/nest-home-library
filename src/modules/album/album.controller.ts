@@ -17,7 +17,7 @@ import { AlbumService } from './album.service';
 import { CreateAlbumDto, UpdateAlbumDto } from './dto';
 import { AlbumEntity } from './entities/album.entity';
 
-@Controller('album')
+@Controller('albums')
 @UseGuards(AuthGuard)
 export class AlbumController {
   constructor(private albumService: AlbumService) {}

@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 
-import { CustomLogger } from 'src/common/utils';
 import { LoggingService, PrismaService } from '../common/services';
+import { CustomLogger } from '../common/utils';
 
 @Global()
 @Module({

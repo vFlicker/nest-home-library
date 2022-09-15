@@ -34,7 +34,6 @@ export class UserService {
     const passwordHash = await argon.hash(password);
 
     const user = await this.userRepository.create(login, passwordHash);
-
     return plainToClass(UserEntity, user);
   }
 

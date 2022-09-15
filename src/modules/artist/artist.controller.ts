@@ -17,7 +17,7 @@ import { ArtistService } from './artist.service';
 import { CreateArtistDto, UpdateArtistDto } from './dto';
 import { ArtistEntity } from './entities/artist.entity';
 
-@Controller('artist')
+@Controller('artists')
 @UseGuards(AuthGuard)
 export class ArtistController {
   constructor(private artistService: ArtistService) {}

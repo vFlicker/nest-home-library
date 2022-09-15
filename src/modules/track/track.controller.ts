@@ -13,11 +13,11 @@ import {
 
 import { uuidV4Decorator } from '../../common/decorators';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { TrackEntity } from './entities/track.entity';
 import { CreateTrackDto, UpdateTrackDto } from './dto';
+import { TrackEntity } from './entities/track.entity';
 import { TrackService } from './track.service';
 
-@Controller('track')
+@Controller('tracks')
 @UseGuards(AuthGuard)
 export class TrackController {
   constructor(private trackService: TrackService) {}

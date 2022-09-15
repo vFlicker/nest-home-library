@@ -4,9 +4,9 @@ import { plainToClass } from 'class-transformer';
 import { errorMessage } from '../../common/utils/error-message';
 import { AlbumRepository } from '../album/album.repository';
 import { ArtistRepository } from '../artist/artist.repository';
-import { TrackRepository } from './track.repository';
 import { CreateTrackDto, UpdateTrackDto } from './dto';
 import { TrackEntity } from './entities/track.entity';
+import { TrackRepository } from './track.repository';
 
 @Injectable()
 export class TrackService {

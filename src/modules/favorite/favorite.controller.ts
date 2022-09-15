@@ -15,7 +15,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { FavoriteEntity } from './entities/favorite.entity';
 import { FavoriteService } from './favorite.service';
 
-@Controller('favs')
+@Controller('favorites')
 @UseGuards(AuthGuard)
 export class FavoriteController {
   constructor(private favoriteService: FavoriteService) {}
