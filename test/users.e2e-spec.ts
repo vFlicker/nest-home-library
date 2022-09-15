@@ -107,7 +107,7 @@ describe('Users (e2e)', () => {
       expect(version).toBe(1);
       expect(typeof createdAt).toBe('number');
       expect(typeof updatedAt).toBe('number');
-      expect(createdAt === updatedAt).toBe(true);
+      expect(createdAt <= updatedAt).toBe(true);
 
       const cleanupResponse = await unauthorizedRequest
         .delete(usersRoutes.delete(id))
@@ -140,7 +140,7 @@ describe('Users (e2e)', () => {
         responses.every(
           ({ statusCode }) => statusCode === StatusCodes.BAD_REQUEST,
         ),
-      );
+      ).toBe(true);
     });
   });
 

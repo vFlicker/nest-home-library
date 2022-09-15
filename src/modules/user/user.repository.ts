@@ -23,29 +23,18 @@ export class UserRepository {
   }
 
   async create(login: string, password: string): Promise<User> {
-    // TODO:
-    const createdAt = new Date().toISOString();
-
     const user = await this.prismaService.user.create({
-      data: {
-        login,
-        password,
-        createdAt,
-        updatedAt: createdAt,
-      },
+      data: { login, password },
     });
 
     return user;
   }
 
   async updatePassword(id: string, password: string): Promise<User> {
-    const updatedAt = new Date().toISOString();
-
     const user = await this.prismaService.user.update({
       where: { id },
       data: {
         password,
-        updatedAt,
         version: { increment: 1 },
       },
     });
