@@ -36,17 +36,17 @@ export class TrackController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createTrackDto: CreateTrackDto): Promise<TrackEntity> {
-    return this.trackService.create(createTrackDto);
+  create(@Body() dto: CreateTrackDto): Promise<TrackEntity> {
+    return this.trackService.create(dto);
   }
 
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', uuidV4Decorator) id: string,
-    @Body() updateTrackDto: UpdateTrackDto,
+    @Body() dto: UpdateTrackDto,
   ): Promise<TrackEntity> {
-    return this.trackService.update(id, updateTrackDto);
+    return this.trackService.update(id, dto);
   }
 
   @Delete(':id')

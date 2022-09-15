@@ -36,17 +36,17 @@ export class AlbumController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createAlbumDto: CreateAlbumDto): Promise<AlbumEntity> {
-    return this.albumService.create(createAlbumDto);
+  create(@Body() dto: CreateAlbumDto): Promise<AlbumEntity> {
+    return this.albumService.create(dto);
   }
 
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', uuidV4Decorator) id: string,
-    @Body() updateAlbumDto: UpdateAlbumDto,
+    @Body() dto: UpdateAlbumDto,
   ): Promise<AlbumEntity> {
-    return this.albumService.update(id, updateAlbumDto);
+    return this.albumService.update(id, dto);
   }
 
   @Delete(':id')

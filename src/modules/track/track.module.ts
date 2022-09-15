@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
 
+import { AlbumModule } from '../album/album.module';
+import { ArtistModule } from '../artist/artist.module';
 import { AuthModule } from '../auth/auth.module';
-import { TrackService } from './track.service';
 import { TrackController } from './track.controller';
+import { TrackRepository } from './track.repository';
+import { TrackService } from './track.service';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AlbumModule, ArtistModule, AuthModule],
   controllers: [TrackController],
-  providers: [TrackService],
-  exports: [TrackService],
+  providers: [TrackService, TrackRepository],
+  exports: [TrackRepository],
 })
 export class TrackModule {}

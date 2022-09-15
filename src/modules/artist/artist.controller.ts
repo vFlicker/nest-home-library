@@ -36,17 +36,17 @@ export class ArtistController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createArtistDto: CreateArtistDto): Promise<ArtistEntity> {
-    return this.artistService.create(createArtistDto);
+  create(@Body() dto: CreateArtistDto): Promise<ArtistEntity> {
+    return this.artistService.create(dto);
   }
 
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', uuidV4Decorator) id: string,
-    @Body() updateArtistDto: UpdateArtistDto,
+    @Body() dto: UpdateArtistDto,
   ): Promise<ArtistEntity> {
-    return this.artistService.update(id, updateArtistDto);
+    return this.artistService.update(id, dto);
   }
 
   @Delete(':id')

@@ -22,8 +22,8 @@ export class FavoriteController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  findAll(): Promise<FavoriteEntity> {
-    return this.favoriteService.findAll();
+  findOne(): Promise<FavoriteEntity> {
+    return this.favoriteService.findOne();
   }
 
   @Post('/album/:id')
