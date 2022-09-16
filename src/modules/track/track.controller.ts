@@ -5,53 +5,53 @@ import {
   Body,
   Param,
   Delete,
-  ParseUUIDPipe,
   Put,
   HttpCode,
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
 
-import { TrackService } from './track.service';
+import { uuidV4Decorator } from '../../common/decorators';
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { CreateTrackDto, UpdateTrackDto } from './dto';
 import { TrackEntity } from './entities/track.entity';
-import { AuthGuard } from '../auth/guards/auth.guard';
+import { TrackService } from './track.service';
 
-@Controller('track')
+@Controller('tracks')
 @UseGuards(AuthGuard)
 export class TrackController {
-  constructor(private readonly trackService: TrackService) {}
+  constructor(private trackService: TrackService) {}
 
-  @Post()
-  create(@Body() createTrackDto: CreateTrackDto): Promise<TrackEntity> {
-    return this.trackService.create(createTrackDto);
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  findOneById(@Param('id', uuidV4Decorator) id: string): Promise<TrackEntity> {
+    return this.trackService.findOneById(id);
   }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   findAll(): Promise<TrackEntity[]> {
     return this.trackService.findAll();
   }
 
-  @Get(':id')
-  findOne(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<TrackEntity> {
-    return this.trackService.findOne(id);
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  create(@Body() dto: CreateTrackDto): Promise<TrackEntity> {
+    return this.trackService.create(dto);
   }
 
   @Put(':id')
+  @HttpCode(HttpStatus.OK)
   update(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-    @Body() updateTrackDto: UpdateTrackDto,
+    @Param('id', uuidV4Decorator) id: string,
+    @Body() dto: UpdateTrackDto,
   ): Promise<TrackEntity> {
-    return this.trackService.update(id, updateTrackDto);
+    return this.trackService.update(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<void> {
+  remove(@Param('id', uuidV4Decorator) id: string): Promise<void> {
     return this.trackService.remove(id);
   }
 }

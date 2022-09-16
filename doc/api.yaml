@@ -189,7 +189,7 @@ paths:
           description: Bad request
         409:
           description: Conflict. Login already exists
-  /user:
+  /users:
     get:
       tags:
         - Users
@@ -239,7 +239,7 @@ paths:
           description: Bad request. body does not contain required fields
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /user/{userId}:
+  /users/{userId}:
     parameters:
       - name: userId
         in: path
@@ -334,7 +334,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         404:
           description: User not found
-  /track:
+  /tracks:
     get:
       tags:
         - Track
@@ -388,7 +388,7 @@ paths:
           description: Bad request. body does not contain required fields
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /track/{id}:
+  /tracks/{id}:
     parameters:
       - name: id
         in: path
@@ -492,7 +492,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Track was not found.
-  /album:
+  /albums:
     get:
       tags:
         - Album
@@ -544,7 +544,7 @@ paths:
           description: Bad request. body does not contain required fields
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /album/{id}:
+  /albums/{id}:
     parameters:
       - name: id
         in: path
@@ -621,7 +621,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Album was not found.
-  /artist:
+  /artists:
     get:
       tags:
         - Artist
@@ -668,7 +668,7 @@ paths:
           description: Bad request. body does not contain required fields
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /artist/{id}:
+  /artists/{id}:
     parameters:
       - name: id
         in: path
@@ -740,7 +740,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Artist was not found.
-  /favs:
+  /favorites:
     get:
       tags:
         - Favorites
@@ -755,7 +755,7 @@ paths:
                 $ref: '#/components/schemas/Favorites'
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /favs/track/{id}:
+  /favorites/track/{id}:
     parameters:
       - name: id
         in: path
@@ -791,7 +791,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Track was not found.
-  /favs/album/{id}:
+  /favorites/album/{id}:
     parameters:
       - name: id
         in: path
@@ -827,7 +827,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Album was not found.
-  /favs/artist/{id}:
+  /favorites/artist/{id}:
     parameters:
       - name: id
         in: path

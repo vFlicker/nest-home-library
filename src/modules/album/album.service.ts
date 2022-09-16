@@ -1,65 +1,63 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 
-import { PrismaService } from '../prisma/prisma.service';
+import { errorMessage } from '../../common/utils/error-message';
+import { ArtistRepository } from '../artist/artist.repository';
+import { AlbumRepository } from './album.repository';
 import { AlbumEntity } from './entities/album.entity';
-import { Message } from './constants/message.constants';
 import { CreateAlbumDto, UpdateAlbumDto } from './dto';
 
 @Injectable()
 export class AlbumService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private albumRepository: AlbumRepository,
+    private artistRepository: ArtistRepository,
+  ) {}
 
-  async create(createAlbumDto: CreateAlbumDto): Promise<AlbumEntity> {
-    if (Boolean(createAlbumDto.artistId)) {
-      const artist = await this.prisma.artist.findUnique({
-        where: { id: createAlbumDto.artistId },
-      });
+  async findOneById(id: string): Promise<AlbumEntity> {
+    const album = await this.albumRepository.findOneById(id);
 
-      if (!artist) throw new NotFoundException(Message.NOT_FOUND);
-    }
-
-    const newAlbum = await this.prisma.album.create({
-      data: { ...createAlbumDto },
-    });
-
-    return plainToClass(AlbumEntity, newAlbum);
-  }
-
-  async findAll(): Promise<AlbumEntity[]> {
-    const albums = await this.prisma.album.findMany();
-    return albums;
-  }
-
-  async findOne(id: string): Promise<AlbumEntity> {
-    const album = await this.prisma.album.findUnique({ where: { id } });
-
-    if (!album) throw new NotFoundException(Message.NOT_FOUND);
+    if (!album) throw new NotFoundException(errorMessage.notFound('Album'));
 
     return plainToClass(AlbumEntity, album);
   }
 
-  async update(
-    id: string,
-    updateAlbumDto: UpdateAlbumDto,
-  ): Promise<AlbumEntity> {
-    const album = await this.prisma.album.findUnique({ where: { id } });
+  async findAll(): Promise<AlbumEntity[]> {
+    const albums = await this.albumRepository.findAll();
+    return albums;
+  }
 
-    if (!album) throw new NotFoundException(Message.NOT_FOUND);
+  async create(dto: CreateAlbumDto): Promise<AlbumEntity> {
+    const { artistId } = dto;
 
-    const updatedAlbum = await this.prisma.album.update({
-      where: { id },
-      data: { ...updateAlbumDto },
-    });
+    if (artistId) {
+      const artist = await this.artistRepository.findOneById(artistId);
+      if (!artist) throw new NotFoundException(errorMessage.notFound('Artist'));
+    }
 
+    if (artistId) {
+      const artist = await this.artistRepository.findOneById(artistId);
+      if (!artist) throw new NotFoundException(errorMessage.notFound('Artist'));
+    }
+
+    const album = await this.albumRepository.create(dto);
+    return plainToClass(AlbumEntity, album);
+  }
+
+  async update(id: string, dto: UpdateAlbumDto): Promise<AlbumEntity> {
+    const album = await this.albumRepository.findOneById(id);
+
+    if (!album) throw new NotFoundException(errorMessage.notFound('Album'));
+
+    const updatedAlbum = await this.albumRepository.update(id, dto);
     return plainToClass(AlbumEntity, updatedAlbum);
   }
 
   async remove(id: string): Promise<void> {
-    const album = await this.prisma.album.findUnique({ where: { id } });
+    const album = await this.albumRepository.findOneById(id);
 
-    if (!album) throw new NotFoundException(Message.NOT_FOUND);
+    if (!album) throw new NotFoundException(errorMessage.notFound('Album'));
 
-    await this.prisma.album.delete({ where: { id } });
+    await this.albumRepository.remove(id);
   }
 }

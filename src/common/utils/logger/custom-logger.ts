@@ -2,12 +2,12 @@ import { Injectable, ConsoleLogger } from '@nestjs/common';
 import { ConsoleLoggerOptions } from '@nestjs/common/services/console-logger.service';
 import { ConfigService } from '@nestjs/config';
 
-import { LoggingService } from '../../../modules/logging/logging.service';
+import { LoggingService } from '../../services';
 import { getLogLevels } from './get-log-levels';
 
 @Injectable()
 export class CustomLogger extends ConsoleLogger {
-  private readonly loggingService: LoggingService;
+  private loggingService: LoggingService;
 
   constructor(
     context: string,

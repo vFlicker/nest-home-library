@@ -1,107 +1,107 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 
-import { Message } from '../user/constants/message.constants';
+import { errorMessage } from '../../common/utils';
 import { UserEntity } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
-import { LoginDto, RefreshDto } from './dto';
-import { SignupDto } from './dto/signup.dto';
+import { UserRepository } from '../user/user.repository';
+import { LoginDto, RefreshDto, SignupDto } from './dto';
 import { TokenPair, TokenPayload } from './interfaces';
-import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly jwt: JwtService,
-    private readonly config: ConfigService,
-    private readonly prisma: PrismaService,
-    private readonly userService: UserService,
+    private configService: ConfigService,
+    private jwtService: JwtService,
+    private userService: UserService,
+    private userRepository: UserRepository,
   ) {}
 
-  async signup(signupDto: SignupDto): Promise<UserEntity> {
-    const user = await this.userService.create(signupDto);
+  async signup(dto: SignupDto): Promise<UserEntity> {
+    const user = await this.userService.create(dto);
     return user;
   }
 
-  async login(loginDto: LoginDto): Promise<TokenPair> {
-    const user = await this.userService.findByLogin(loginDto.login);
+  async login(dto: LoginDto): Promise<TokenPair> {
+    const user = await this.userRepository.findOneByLogin(dto.login);
 
-    const passwordMatches = await argon.verify(
-      user.password,
-      loginDto.password,
-    );
-    if (!passwordMatches) throw new ForbiddenException(Message.FORBIDDEN);
+    if (!user) throw new NotFoundException(errorMessage.notFound('User'));
 
-    const tokenPair = await this.issueTokenPair(user.id, user.login);
+    const isPasswordMatches = await argon.verify(user.password, dto.password);
+
+    if (!isPasswordMatches) {
+      throw new ForbiddenException(errorMessage.forbidden);
+    }
+
+    const { id, login } = user;
+    const tokenPair = await this.issueTokenPair({ id, login });
     return tokenPair;
   }
 
-  async refresh(refreshDto: RefreshDto): Promise<TokenPair> {
-    const tokenPayload = this.verifyRefreshToken(refreshDto.refreshToken);
+  async refresh(dto: RefreshDto): Promise<TokenPair> {
+    const tokenPayload = await this.verifyRefreshToken(dto.refreshToken);
+    const { id } = tokenPayload;
 
-    const user = await this.userService.findByLogin(tokenPayload.login);
+    const user = await this.userRepository.findOneById(id);
+
+    if (!user) throw new NotFoundException(errorMessage.notFound('User'));
 
     const refreshTokenMatches = await argon.verify(
       user.refreshToken,
-      refreshDto.refreshToken,
+      dto.refreshToken,
     );
+
     if (!refreshTokenMatches) {
-      throw new ForbiddenException(Message.FORBIDDEN);
+      throw new ForbiddenException(errorMessage.forbidden);
     }
 
-    const tokenPair = await this.issueTokenPair(user.id, user.login);
+    const tokenPair = await this.issueTokenPair(tokenPayload);
     return tokenPair;
   }
 
-  // TODO: user verifyAsync
-  verifyAccessToken(token: string): TokenPayload {
+  async verifyAccessToken(token: string): Promise<TokenPayload> {
     try {
-      return this.jwt.verify(token, {
-        secret: this.config.get('JWT_SECRET_KEY'),
-      });
+      const secret = this.configService.get('JWT_SECRET_KEY');
+      const tokenPayload = await this.jwtService.verifyAsync(token, { secret });
+      return tokenPayload;
     } catch {
-      throw new ForbiddenException();
+      throw new ForbiddenException(errorMessage.forbidden);
     }
   }
 
-  // TODO: user verifyAsync
-  verifyRefreshToken(token: string): TokenPayload {
+  async verifyRefreshToken(token: string): Promise<TokenPayload> {
     try {
-      return this.jwt.verify(token, {
-        secret: this.config.get('JWT_SECRET_REFRESH_KEY'),
-      });
+      const secret = this.configService.get('JWT_SECRET_REFRESH_KEY');
+      const tokenPayload = await this.jwtService.verifyAsync(token, { secret });
+      return tokenPayload;
     } catch {
-      throw new ForbiddenException();
+      throw new ForbiddenException(errorMessage.forbidden);
     }
   }
 
-  private async issueTokenPair(
-    userId: string,
-    login: string,
-  ): Promise<TokenPair> {
-    const payload = {
-      id: userId,
-      login,
-    };
+  private async issueTokenPair(payload: TokenPayload): Promise<TokenPair> {
+    const { id } = payload;
 
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwt.signAsync(payload, {
-        expiresIn: this.config.get('TOKEN_EXPIRE_TIME'),
-        secret: this.config.get('JWT_SECRET_KEY'),
+      this.jwtService.signAsync(payload, {
+        expiresIn: this.configService.get('TOKEN_EXPIRE_TIME'),
+        secret: this.configService.get('JWT_SECRET_KEY'),
       }),
-      this.jwt.signAsync(payload, {
-        expiresIn: this.config.get('TOKEN_REFRESH_EXPIRE_TIME'),
-        secret: this.config.get('JWT_SECRET_REFRESH_KEY'),
+      this.jwtService.signAsync(payload, {
+        expiresIn: this.configService.get('TOKEN_REFRESH_EXPIRE_TIME'),
+        secret: this.configService.get('JWT_SECRET_REFRESH_KEY'),
       }),
     ]);
 
     const hashedRefreshToken = await argon.hash(refreshToken);
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { refreshToken: hashedRefreshToken },
-    });
+
+    await this.userRepository.updateRefreshToken(id, hashedRefreshToken);
 
     return { accessToken, refreshToken };
   }

@@ -1,57 +1,47 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 
-import { PrismaService } from '../prisma/prisma.service';
-import { Message } from './constants/message.constants';
-import { CreateArtistDto, UpdateArtistDto } from './dto';
+import { errorMessage } from '../../common/utils/error-message';
+import { ArtistRepository } from './artist.repository';
 import { ArtistEntity } from './entities/artist.entity';
+import { CreateArtistDto, UpdateArtistDto } from './dto';
 
 @Injectable()
 export class ArtistService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private artistRepository: ArtistRepository) {}
 
-  async create(createArtistDto: CreateArtistDto): Promise<ArtistEntity> {
-    const newArtist = await this.prisma.artist.create({
-      data: { ...createArtistDto },
-    });
+  async findOneById(id: string): Promise<ArtistEntity> {
+    const artist = await this.artistRepository.findOneById(id);
 
-    return plainToClass(ArtistEntity, newArtist);
-  }
-
-  async findAll(): Promise<ArtistEntity[]> {
-    const artists = await this.prisma.artist.findMany();
-    return artists.map((artist) => plainToClass(ArtistEntity, artist));
-  }
-
-  async findOne(id: string): Promise<ArtistEntity> {
-    const artist = await this.prisma.artist.findUnique({ where: { id } });
-
-    if (!artist) throw new NotFoundException(Message.NOT_FOUND);
+    if (!artist) throw new NotFoundException(errorMessage.notFound('Artist'));
 
     return plainToClass(ArtistEntity, artist);
   }
 
-  async update(
-    id: string,
-    updateArtistDto: UpdateArtistDto,
-  ): Promise<ArtistEntity> {
-    const artist = await this.prisma.artist.findUnique({ where: { id } });
+  async findAll(): Promise<ArtistEntity[]> {
+    const artists = await this.artistRepository.findAll();
+    return artists.map((artist) => plainToClass(ArtistEntity, artist));
+  }
 
-    if (!artist) throw new NotFoundException(Message.NOT_FOUND);
+  async create(dto: CreateArtistDto): Promise<ArtistEntity> {
+    const artist = await this.artistRepository.create(dto);
+    return plainToClass(ArtistEntity, artist);
+  }
 
-    const updatedArtist = await this.prisma.artist.update({
-      where: { id },
-      data: { ...updateArtistDto },
-    });
+  async update(id: string, dto: UpdateArtistDto): Promise<ArtistEntity> {
+    const artist = await this.artistRepository.findOneById(id);
 
+    if (!artist) throw new NotFoundException(errorMessage.notFound('Artist'));
+
+    const updatedArtist = await this.artistRepository.update(id, dto);
     return plainToClass(ArtistEntity, updatedArtist);
   }
 
   async remove(id: string): Promise<void> {
-    const artist = await this.prisma.artist.findUnique({ where: { id } });
+    const artist = await this.artistRepository.findOneById(id);
 
-    if (!artist) throw new NotFoundException(Message.NOT_FOUND);
+    if (!artist) throw new NotFoundException(errorMessage.notFound('Artist'));
 
-    await this.prisma.artist.delete({ where: { id } });
+    await this.artistRepository.remove(id);
   }
 }

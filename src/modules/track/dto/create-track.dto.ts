@@ -1,12 +1,6 @@
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  IsUUID,
-  ValidateIf,
-} from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
 
-const IsNotNull = () => ValidateIf((_, value) => value !== null);
+import { IsNotNull } from '../../../common/decorators';
 
 export class CreateTrackDto {
   @IsString()

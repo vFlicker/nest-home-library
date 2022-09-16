@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { EOL } from 'os';
 import * as fs from 'fs/promises';
 
-import { checkStart, getLogLevel, getLogSeparate } from '../../common/utils';
+import { checkStart, getLogLevel, getLogSeparate } from '../utils';
 
 const LOG_DIR = 'logs';
 const LOG_ERROR_DIR = 'logs/error';

@@ -1,12 +1,6 @@
-import {
-  IsNumber,
-  IsOptional,
-  IsString,
-  IsUUID,
-  ValidateIf,
-} from 'class-validator';
+import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
-const IsNotNull = () => ValidateIf((_, value) => value !== null);
+import { IsNotNull } from '../../../common/decorators';
 
 export class UpdateAlbumDto {
   @IsString()

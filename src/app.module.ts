@@ -8,21 +8,19 @@ import {
   ArtistModule,
   AuthModule,
   FavoriteModule,
-  LoggingModule,
-  PrismaModule,
+  GlobalModule,
   TrackModule,
   UserModule,
 } from './modules';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     AlbumModule,
     ArtistModule,
     AuthModule,
     FavoriteModule,
-    LoggingModule,
-    PrismaModule,
+    GlobalModule,
     TrackModule,
     UserModule,
   ],

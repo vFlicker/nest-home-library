@@ -7,9 +7,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
+import { UserEntity } from '../user/entities/user.entity';
 import { AuthService } from './auth.service';
 import { LoginDto, RefreshDto, SignupDto } from './dto';
 import { AuthGuard } from './guards/auth.guard';
+import { TokenPair } from './interfaces';
 
 @Controller('auth')
 export class AuthController {
@@ -17,20 +19,20 @@ export class AuthController {
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  signup(@Body() signupDto: SignupDto) {
-    return this.authService.signup(signupDto);
+  signup(@Body() dto: SignupDto): Promise<UserEntity> {
+    return this.authService.signup(dto);
   }
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  login(@Body() dto: LoginDto): Promise<TokenPair> {
+    return this.authService.login(dto);
   }
 
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
-  refresh(@Body() refreshDto: RefreshDto) {
-    return this.authService.refresh(refreshDto);
+  refresh(@Body() dto: RefreshDto): Promise<TokenPair> {
+    return this.authService.refresh(dto);
   }
 }
