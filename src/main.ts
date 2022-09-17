@@ -5,9 +5,9 @@ import { ConfigService } from '@nestjs/config';
 import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 import * as yaml from 'js-yaml';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 import { AppModule } from './app.module';
-import { CustomLogger } from './common/utils';
 
 const initSwagger = async (app: INestApplication) => {
   const openAPI = await readFile(resolve(__dirname, '../doc/api.yaml'), 'utf8');
@@ -27,7 +27,7 @@ const handleUncaughtErrors = (logger: Logger) => {
 };
 
 const initGlobalEntities = (app: INestApplication, logger: Logger) => {
-  app.useLogger(app.get(CustomLogger));
+  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

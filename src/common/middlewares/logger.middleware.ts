@@ -1,55 +1,40 @@
-import { Injectable, Logger, LogLevel, NestMiddleware } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import {
+  Inject,
+  Injectable,
+  LoggerService,
+  NestMiddleware,
+} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
-import { getLogLevel, getFullUrl } from '../utils';
+import { createRequestLogMessage } from '../utils';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  private logger = new Logger('HTTP');
-  private level: LogLevel[];
-
-  constructor(configService: ConfigService) {
-    const levelEnv = configService.get('LOGGER_LEVEL');
-    this.level = getLogLevel(levelEnv);
-  }
+  constructor(
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: LoggerService,
+  ) {}
 
   use(request: Request, response: Response, next: NextFunction): void {
-    const { body, query, ip, method } = request;
-    const userAgent = request.get('user-agent') || '';
-
     response.on('finish', () => {
-      const { statusCode, statusMessage } = response;
-      const contentLength = response.get('content-length');
+      const { statusCode } = response;
 
-      const message = `Method: ${method} URL: ${getFullUrl(
-        request,
-      )} query: ${JSON.stringify(query)} Body: ${JSON.stringify(
-        body,
-      )} StatusCode: ${statusCode} StatusMessage: ${statusMessage} ContentLength: ${contentLength} - ${userAgent} ${ip}`;
+      const message = createRequestLogMessage(request, response);
 
-      if (this.level.includes('error') && statusCode >= 500) {
-        return this.logger.error(message);
+      if (statusCode >= 500) {
+        this.logger.error(message);
+        return;
       }
 
-      if (
-        this.level.includes('warn') &&
-        statusCode >= 400 &&
-        statusCode < 500
-      ) {
-        return this.logger.warn(message);
+      if (statusCode >= 400 && statusCode < 500) {
+        this.logger.warn(message);
+        return;
       }
 
-      if (this.level.includes('log') && statusCode < 400) {
-        return this.logger.log(message);
-      }
-
-      if (this.level.includes('verbose') && statusCode < 400) {
-        return this.logger.log(message);
-      }
-
-      if (this.level.includes('debug') && statusCode < 400) {
-        return this.logger.log(message);
+      if (statusCode < 400) {
+        this.logger.log(message);
+        return;
       }
     });
 

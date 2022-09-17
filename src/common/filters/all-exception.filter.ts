@@ -3,16 +3,22 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  Logger,
-  LogLevel,
+  LoggerService,
+  Inject,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { BaseExceptionFilter } from '@nestjs/core';
 import { PrismaClientKnownRequestError as PrismaException } from '@prisma/client/runtime';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Catch(HttpException, PrismaException)
 export class AllExceptionFilter extends BaseExceptionFilter {
-  private logger = new Logger(AllExceptionFilter.name);
+  constructor(
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: LoggerService,
+  ) {
+    super();
+  }
 
   catch(exception: HttpException | PrismaException, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
