@@ -8,17 +8,14 @@ import {
   Put,
   HttpCode,
   HttpStatus,
-  UseGuards,
 } from '@nestjs/common';
 
 import { uuidV4Decorator } from '../../common/decorators';
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto, UpdateArtistDto } from './dto';
 import { ArtistEntity } from './entities/artist.entity';
 
 @Controller('artists')
-@UseGuards(AuthGuard)
 export class ArtistController {
   constructor(private artistService: ArtistService) {}
 

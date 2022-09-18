@@ -8,17 +8,14 @@ import {
   Put,
   HttpCode,
   HttpStatus,
-  UseGuards,
 } from '@nestjs/common';
 
 import { uuidV4Decorator } from '../../common/decorators';
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { CreateTrackDto, UpdateTrackDto } from './dto';
 import { TrackEntity } from './entities/track.entity';
 import { TrackService } from './track.service';
 
 @Controller('tracks')
-@UseGuards(AuthGuard)
 export class TrackController {
   constructor(private trackService: TrackService) {}
 

@@ -1,16 +1,9 @@
-import {
-  Controller,
-  Post,
-  Body,
-  HttpCode,
-  HttpStatus,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 
+import { PublicRoute } from '../../common/decorators';
 import { UserEntity } from '../user/entities/user.entity';
 import { AuthService } from './auth.service';
 import { LoginDto, RefreshDto, SignupDto } from './dto';
-import { AuthGuard } from './guards/auth.guard';
 import { TokenPair } from './interfaces';
 
 @Controller('auth')
@@ -19,19 +12,20 @@ export class AuthController {
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
+  @PublicRoute()
   signup(@Body() dto: SignupDto): Promise<UserEntity> {
     return this.authService.signup(dto);
   }
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
+  @PublicRoute()
   login(@Body() dto: LoginDto): Promise<TokenPair> {
     return this.authService.login(dto);
   }
 
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
   refresh(@Body() dto: RefreshDto): Promise<TokenPair> {
     return this.authService.refresh(dto);
   }

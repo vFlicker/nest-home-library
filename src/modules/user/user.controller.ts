@@ -10,17 +10,14 @@ import {
   HttpStatus,
   UseInterceptors,
   ClassSerializerInterceptor,
-  UseGuards,
 } from '@nestjs/common';
 
 import { uuidV4Decorator } from '../../common/decorators';
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { CreateUserDto, UpdatePasswordDto } from './dto';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
 
 @Controller('users')
-@UseGuards(AuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private userService: UserService) {}

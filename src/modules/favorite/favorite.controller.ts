@@ -6,17 +6,14 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
-  UseGuards,
 } from '@nestjs/common';
 import { Album, Artist, Track } from '@prisma/client';
 
 import { uuidV4Decorator } from '../../common/decorators';
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { FavoriteEntity } from './entities/favorite.entity';
 import { FavoriteService } from './favorite.service';
 
 @Controller('favorites')
-@UseGuards(AuthGuard)
 export class FavoriteController {
   constructor(private favoriteService: FavoriteService) {}
 
