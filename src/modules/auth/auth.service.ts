@@ -33,7 +33,8 @@ export class AuthService {
 
     if (!user) throw new NotFoundException(errorMessage.notFound('User'));
 
-    const isPasswordMatches = await argon.verify(user.password, dto.password);
+    const { password: hashedPassword } = user;
+    const isPasswordMatches = await argon.verify(hashedPassword, dto.password);
 
     if (!isPasswordMatches) {
       throw new ForbiddenException(errorMessage.forbidden);
