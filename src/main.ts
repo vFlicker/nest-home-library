@@ -19,6 +19,7 @@ const handleUncaughtErrors = (logger: Logger) => {
   process
     .on('unhandledRejection', (reason) => {
       logger.error(`Unhandled rejection: ${reason}`);
+      process.exit(1);
     })
     .on('uncaughtException', (error) => {
       logger.error(`Uncaught exception: ${error}`);
